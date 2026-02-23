@@ -1,0 +1,308 @@
+ERKALE - HF/DFT from Hel, OpenMP version, running on 8 cores.
+(c) Susi Lehtola, 2010-2016.
+
+This program is free software; you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation; either version 2 of the License, or
+(at your option) any later version.
+
+Running on host silver.
+
+Current time is Fri 23 Jan 2026 09:36:41.
+
+Current Settings used by ERKALE:
+     AtomGuess      	                Auto	Method used for atomic guess (Auto for same as method)
+     Basis          	         aug-cc-pV5Z	Basis set used in calculation
+     BasisCutoff    	           1.000e-08	Cutoff for dropping out small primitives from contraction
+     BasisOrth      	                Auto	Method of orthonormalization of basis set
+     BasisRotate    	               false	Rotate basis set to remove redundant functions?
+     Charge         	                   0	Total charge of system
+     CholDepThresh  	           1.000e-07	Partial Cholesky decomposition threshold
+     Cholesky       	                true	Use Cholesky decomposition?
+     CholeskyMode   	                   0	Save/load integrals? 0 no, 1 save, -1 load
+     CholeskyNAFThr 	           0.000e+00	Cholesky natural auxiliary function threshold
+     CholeskyShThr  	           1.000e-02	Cholesky cache threshold
+     CholeskyThr    	           1.000e-07	Cholesky decomposition threshold
+     Complexbas     	                true	Use complex basis?
+     Confinement    	         0.0 0.0 0.0	Confinement potential V(r) = V_i x_i^2
+     ConvThr        	           1.000e-06	Orbital gradient convergence threshold
+     DFTBasisThr    	           1.000e-10	Threshold for screening basis functions on grid
+     DFTCpars       	                    	Override parameters of correlation functional (expert)
+     DFTDelta       	           1.000e+02	Switch to final DFT grid has converged within factor X
+     DFTDensityThr  	           1.000e-10	Threshold for screening density on grid
+     DFTFinalTol    	           1.000e-05	Tolerance of final DFT grid
+     DFTGrid        	             75 -302	DFT integration grid to use: nrad lmax or Auto for adaptive
+     DFTInitialTol  	           1.000e-04	Tolerance of initial DFT grid
+     DFTLobatto     	               false	Use Lobatto quadrature instead of Lebedev quadrature?
+     DFTQuadThresh  	           2.220e-16	Threshold for pruning points with small quadrature weight
+     DFTXpars       	                    	Override parameters of exchange functional (expert)
+     DIISComb       	               false	Combine alpha and beta errors in unrestricted calcs?
+     DIISEps        	           1.000e-01	Start mixing in DIIS when error is
+     DIISOrder      	                  10	How many DIIS iterations to keep in memory?
+     DIISThr        	           1.000e-02	DIIS error threshold for DIIS updates
+     DecFock        	               false	Use decontracted basis to calculate Fock matrix (direct HF)
+     Decontract     	                   *	Indices of atoms to decontract basis set for
+     DensityFitting 	               false	Use density fitting / RI?
+     Direct         	               false	Calculate two-electron integrals (or density fitting) on-the-fly?
+     EField         	         0.0 0.0 0.0	Electric field
+     ErrorNorm      	                 rms	Error norm to use in the SCF code
+     FittingBasis   	                Auto	Basis to use for density fitting / RI (Auto for automatic)
+     FittingCholeskyThreshold	           1.000e-08	Linear dependence threshold for pivoted Cholesky of Coulomb integrals in density fitting
+     FittingMemory  	                1000	Amount of memory in MB to use for exchange fitting
+     FittingThreshold	           1.000e-07	Linear dependence threshold for Coulomb integrals in density fitting
+     Guess          	              sapfit	Used guess: SAD (default), SADNO, core, GWH, SAP, or SAPfit
+     InitConvThr    	           1.000e-05	Initialization convergence threshold
+     InputBohr      	               false	Use atomic units as input units instead of angstrom?
+     IntegralThresh 	           1.000e-10	Integral screening threshold
+     Kgwh           	           1.750e+00	Scaling constant for GWH
+     LinDepThresh   	           1.000e-05	Basis set linear dependency threshold
+     LinearB        	           4.200e-01	Magnetic field along bond axis
+     LinearFreeze   	               false	If using linear symmetry, freeze symmetry to input guess
+     LinearOccupationFile	      ../../B_2.occs	File to read linear occupations from
+     LinearOccupations	                  -1	Read in occupations for linear molecule calculations?
+     LinearSymmetry 	                true	Do special calculation on linear molecule along z axis
+     LoadChk        	                    	Checkpoint file to load from
+     Logfile        	          erkale.log	File to print out full information, stdout for screen
+     MaxInitIter    	                  50	Maximum number of iterations in the stepwise solutions
+     MaxIter        	                 100	Maximum number of iterations in SCF cycle
+     Method         	                  HF	Method used in calculation (HF or a DFT functional)
+     Multiplicity   	                   4	Spin multiplicity
+     NLGrid         	             50 -194	Integration grid to use for nonlocal correlation: nrad lmax
+     Occupancies    	                    	Orbital occupancies
+     OptLM          	               false	If spherical harmonics used, use cartesian s and p functions?
+     PZ             	               false	Perform Perdew-Zunger self-interaction correction?
+     PZEthr         	           1.000e-10	Threshold for energy convergence
+     PZIthr         	           1.000e-02	Threshold for initialization convergence (not too small!)
+     PZNRthr        	           0.000e+00	Threshold for use of NR method in OO optimization
+     PZOOthr        	           1.000e-04	Gradient threshold for OO optimization
+     PZOVthr        	           1.000e-05	Gradient threshold for OV optimization
+     PZimag         	                Auto	Imaginary degrees of freedom in PZ?
+     PZiter         	                  20	Max number of iterations in self-consistency iteration
+     PZloc          	                Auto	Initial localization before SIC calculation?
+     PZlocmet       	                  FB	Initial localization method (recommend FB or IAO)
+     PZmode         	                  XC	Apply PZ to the operators (in addition to J): X C D
+     PZoo           	                true	Optimize OO block?
+     PZov           	                true	Optimize OV block?
+     PZprec         	                   1	Precondition OV block? 0: no, 1: unified, 2: orbital
+     PZrand         	                true	Apply random rotation in PZ initialization? (Should be true)
+     PZscale        	            Constant	Scaling for PZ: Constant, Density or Kinetic
+     PZscaleExp     	           1.000e+00	Exponent in the dynamic scaling equation
+     PZseed         	                   0	Seed number for randomized matrices?
+     PZstab         	                   0	Stability analysis for PZ-SIC? 1 or -1 for OO, 2 or -2 for OO+OV
+     PZstabThr      	           1.000e-03	Instability threshold (interpreted as -thr)
+     PZw            	           1.000e+00	Weight for Perdew-Zunger self-interaction correction
+     Restricted     	               false	Spin restricted?
+     SAPBasis       	    helfem_large.gbs	Tabulated atomic effective potential "basis set"
+     SAPGrid        	                    	SAP integration grid to use: nrad lmax or leave empty
+     SaveChk        	   complex_basis.chk	Checkpoint file to save to
+     Shift          	           0.000e+00	Level shift to use in Hartree
+     System         	        ../atoms.xyz	System as an xyz file
+     TRRHminS       	           9.750e-01	Trust-Region Roothaan-Hall minimal occupied orbital overlap
+     UseADIIS       	                true	Use ADIIS for Fock matrix interpolation?
+     UseBroyden     	               false	Use Broyden mixing of Fock matrices?
+     UseDIIS        	                true	Use Pulay's Direct Inversion in the Iterative Subspace?
+     UseLM          	                true	Use a spherical harmonics basis set by default?
+     UseTRRH        	               false	Use Trust-Region Roothaan-Hall?
+     VV10           	                Auto	Use VV10 non-local correlation?
+     VV10Pars       	                    	VV10 parameters: b C
+     Verbose        	                true	Verbose calculation?
+     Verbosity      	                   5	Verboseness level
+
+Basis set aug-cc-pV5Z found in file aug-cc-pV5Z.gbs in /home/lehtola/programs/erkale/basis/.
+Basis set helfem_large.gbs found in file helfem_large.gbs in /home/lehtola/programs/erkale/basis/.
+Screening by shell pairs and symmetry reduced dofs by factor 2.01.
+Individual screening reduced dofs by a total factor 2.01.
+Computing Cholesky vectors. Estimated memory size is 34 Mi - 113 Mi.
+Cholesky vectors no     0 -     0 computed, error is 3.728072e+01 (0.03 s).
+Cholesky vectors no     1 -     1 computed, error is 1.375692e+01 (0.03 s).
+Cholesky vectors no     2 -     2 computed, error is 4.738589e+00 (0.02 s).
+Cholesky vectors no     3 -     8 computed, error is 1.901746e+00 (0.13 s).
+Cholesky vectors no     9 -     9 computed, error is 1.451809e+00 (0.00 s).
+Cholesky vectors no    10 -    12 computed, error is 1.211836e+00 (0.00 s).
+Cholesky vectors no    13 -    18 computed, error is 4.546357e-01 (0.00 s).
+Cholesky vectors no    19 -    21 computed, error is 4.530394e-01 (0.00 s).
+Cholesky vectors no    22 -    22 computed, error is 4.061250e-01 (0.00 s).
+Cholesky vectors no    23 -    23 computed, error is 4.052160e-01 (0.00 s).
+Cholesky vectors no    24 -    68 computed, error is 3.033677e-01 (0.02 s).
+Cholesky vectors no    69 -    74 computed, error is 2.268898e-01 (0.00 s).
+Cholesky vectors no    75 -    84 computed, error is 1.374195e-01 (0.01 s).
+Cholesky vectors no    85 -   129 computed, error is 1.060544e-01 (0.04 s).
+Cholesky vectors no   130 -   144 computed, error is 8.203727e-02 (0.02 s).
+Cholesky vectors no   145 -   165 computed, error is 7.165876e-02 (0.02 s).
+Cholesky vectors no   166 -   168 computed, error is 5.503641e-02 (0.00 s).
+Cholesky vectors no   169 -   171 computed, error is 4.508278e-02 (0.00 s).
+Cholesky vectors no   172 -   177 computed, error is 3.111529e-02 (0.01 s).
+Cholesky vectors no   178 -   213 computed, error is 2.882717e-02 (0.05 s).
+Cholesky vectors no   214 -   258 computed, error is 2.819695e-02 (0.05 s).
+Cholesky vectors no   259 -   279 computed, error is 2.562665e-02 (0.02 s).
+Cholesky vectors no   280 -   280 computed, error is 1.607115e-02 (0.00 s).
+Cholesky vectors no   281 -   281 computed, error is 1.560373e-02 (0.00 s).
+Cholesky vectors no   282 -   284 computed, error is 1.297338e-02 (0.00 s).
+Cholesky vectors no   285 -   320 computed, error is 9.209757e-03 (0.06 s).
+Cholesky vectors no   321 -   386 computed, error is 7.683482e-03 (0.08 s).
+Cholesky vectors no   387 -   414 computed, error is 6.551288e-03 (0.05 s).
+Cholesky vectors no   415 -   420 computed, error is 6.142069e-03 (0.01 s).
+Cholesky vectors no   421 -   475 computed, error is 4.449571e-03 (0.06 s).
+Cholesky vectors no   476 -   478 computed, error is 3.725111e-03 (0.00 s).
+Cholesky vectors no   479 -   488 computed, error is 3.564147e-03 (0.01 s).
+Cholesky vectors no   489 -   554 computed, error is 3.463630e-03 (0.11 s).
+Cholesky vectors no   555 -   609 computed, error is 2.561887e-03 (0.10 s).
+Cholesky vectors no   610 -   612 computed, error is 2.161549e-03 (0.00 s).
+Cholesky vectors no   613 -   613 computed, error is 1.788818e-03 (0.00 s).
+Cholesky vectors no   614 -   623 computed, error is 1.466325e-03 (0.01 s).
+Cholesky vectors no   624 -   644 computed, error is 1.106492e-03 (0.03 s).
+Cholesky vectors no   645 -   671 computed, error is 9.190527e-04 (0.04 s).
+Cholesky vectors no   672 -   677 computed, error is 8.556151e-04 (0.01 s).
+Cholesky vectors no   678 -   692 computed, error is 6.900319e-04 (0.02 s).
+Cholesky vectors no   693 -   745 computed, error is 4.545027e-04 (0.10 s).
+Cholesky vectors no   746 -   755 computed, error is 2.674405e-04 (0.01 s).
+Cholesky vectors no   756 -   758 computed, error is 2.101447e-04 (0.00 s).
+Cholesky vectors no   759 -   786 computed, error is 1.969422e-04 (0.04 s).
+Cholesky vectors no   787 -   787 computed, error is 1.931280e-04 (0.00 s).
+Cholesky vectors no   788 -   821 computed, error is 1.406606e-04 (0.09 s).
+Cholesky vectors no   822 -   849 computed, error is 7.472232e-05 (0.05 s).
+Cholesky vectors no   850 -   885 computed, error is 5.646336e-05 (0.06 s).
+Cholesky vectors no   886 -   891 computed, error is 5.478668e-05 (0.01 s).
+Cholesky vectors no   892 -   892 computed, error is 3.868951e-05 (0.00 s).
+Cholesky vectors no   893 -   895 computed, error is 3.361837e-05 (0.01 s).
+Cholesky vectors no   896 -   902 computed, error is 2.539650e-05 (0.05 s).
+Cholesky vectors no   903 -   913 computed, error is 2.043194e-05 (0.02 s).
+Cholesky vectors no   914 -   922 computed, error is 1.004848e-05 (0.02 s).
+Cholesky vectors no   923 -   925 computed, error is 9.117296e-06 (0.01 s).
+Cholesky vectors no   926 -   926 computed, error is 7.736595e-06 (0.00 s).
+Cholesky vectors no   927 -   953 computed, error is 4.063962e-06 (0.05 s).
+Cholesky vectors no   954 -   967 computed, error is 3.030735e-06 (0.03 s).
+Cholesky vectors no   968 -   970 computed, error is 2.960431e-06 (0.01 s).
+Cholesky vectors no   971 -   971 computed, error is 2.696120e-06 (0.00 s).
+Cholesky vectors no   972 -   972 computed, error is 2.573650e-06 (0.00 s).
+Cholesky vectors no   973 -  1005 computed, error is 2.253526e-06 (0.11 s).
+Cholesky vectors no  1006 -  1035 computed, error is 2.037907e-06 (0.06 s).
+Cholesky vectors no  1036 -  1038 computed, error is 1.102815e-06 (0.01 s).
+Cholesky vectors no  1039 -  1082 computed, error is 9.577370e-07 (0.08 s).
+Cholesky vectors no  1083 -  1083 computed, error is 7.815609e-07 (0.00 s).
+Cholesky vectors no  1084 -  1101 computed, error is 7.119563e-07 (0.08 s).
+Cholesky vectors no  1102 -  1107 computed, error is 6.374131e-07 (0.02 s).
+Cholesky vectors no  1108 -  1128 computed, error is 5.300538e-07 (0.05 s).
+Cholesky vectors no  1129 -  1183 computed, error is 2.421062e-07 (0.13 s).
+Cholesky vectors no  1184 -  1196 computed, error is 2.307486e-07 (0.03 s).
+Cholesky vectors no  1197 -  1199 computed, error is 2.038887e-07 (0.01 s).
+Cholesky vectors no  1200 -  1201 computed, error is 1.882471e-07 (0.05 s).
+Cholesky vectors no  1202 -  1207 computed, error is 1.577285e-07 (0.02 s).
+Cholesky vectors no  1208 -  1208 computed, error is 1.382740e-07 (0.00 s).
+Cholesky vectors no  1209 -  1222 computed, error is 1.325367e-07 (0.03 s).
+Cholesky vectors no  1223 -  1231 computed, error is 1.014644e-07 (0.02 s).
+Cholesky vectors no  1232 -  1241 computed, error is 4.675938e-08 (0.02 s).
+Cholesky decomposition finished in 2.87 s. Realized memory size is 102 Mi 587 ki.
+Time use: integrals 15.5 %, linear algebra 84.5 %.
+731 shell pairs and 1 nuclei
+SAP potential formed in 0.018 s.
+Smallest eigenvalue of overlap matrix is 3.79e-01, reciprocal condition number is 2.34e-01.
+Using symmetric orthogonalization.
+Smallest eigenvalue of overlap matrix is 2.11e-01, reciprocal condition number is 1.08e-01.
+Using symmetric orthogonalization.
+Smallest eigenvalue of overlap matrix is 1.08e-01, reciprocal condition number is 4.75e-02.
+Using symmetric orthogonalization.
+Smallest eigenvalue of overlap matrix is 6.71e-02, reciprocal condition number is 2.65e-02.
+Using symmetric orthogonalization.
+Smallest eigenvalue of overlap matrix is 1.47e-02, reciprocal condition number is 4.47e-03.
+Using symmetric orthogonalization.
+Smallest eigenvalue of overlap matrix is 1.44e-03, reciprocal condition number is 3.01e-04.
+Using symmetric orthogonalization.
+Smallest eigenvalue of overlap matrix is 1.47e-02, reciprocal condition number is 4.47e-03.
+Using symmetric orthogonalization.
+Smallest eigenvalue of overlap matrix is 6.71e-02, reciprocal condition number is 2.65e-02.
+Using symmetric orthogonalization.
+Smallest eigenvalue of overlap matrix is 1.08e-01, reciprocal condition number is 4.75e-02.
+Using symmetric orthogonalization.
+Smallest eigenvalue of overlap matrix is 2.11e-01, reciprocal condition number is 1.08e-01.
+Using symmetric orthogonalization.
+Smallest eigenvalue of overlap matrix is 3.79e-01, reciprocal condition number is 2.34e-01.
+Using symmetric orthogonalization.
+Nela = 4 Nelb = 1
+
+
+
+Solving SCF
+Evaluated energy -24.7573861578 (change from lowest -2.475739e+01)
+
+
+Iteration 1: 1 Fock evaluations energy -24.7573861578 change -2.475739e+01 DIIS error vector rms norm 6.780971e-03
+History size 1
+alpha m=-1 occupations
+   1.0000
+alpha m=0 occupations
+   1.0000   1.0000
+alpha m=1 occupations
+   1.0000
+beta m=0 occupations
+   1.0000
+EDIIS+DIIS step
+Evaluated energy -24.8507203063 (change from lowest -9.333415e-02)
+Density matrix difference 2.674226e-02 between lowest-energy and newest entry
+
+
+Iteration 2: 2 Fock evaluations energy -24.8507203063 change -9.333415e-02 DIIS error vector rms norm 1.077713e-03
+History size 2
+alpha m=-1 occupations
+   1.0000
+alpha m=0 occupations
+   1.0000   1.0000
+alpha m=1 occupations
+   1.0000
+beta m=0 occupations
+   1.0000
+EDIIS+DIIS step
+Evaluated energy -24.8543230347 (change from lowest -3.602728e-03)
+Density matrix difference 5.592249e-03 between lowest-energy and newest entry
+
+
+Iteration 3: 3 Fock evaluations energy -24.8543230347 change -3.602728e-03 DIIS error vector rms norm 1.682235e-04
+History size 3
+alpha m=-1 occupations
+   1.0000
+alpha m=0 occupations
+   1.0000   1.0000
+alpha m=1 occupations
+   1.0000
+beta m=0 occupations
+   1.0000
+EDIIS+DIIS step
+Evaluated energy -24.8544169135 (change from lowest -9.387877e-05)
+Density matrix difference 9.901915e-04 between lowest-energy and newest entry
+
+
+Iteration 4: 4 Fock evaluations energy -24.8544169135 change -9.387877e-05 DIIS error vector rms norm 1.425000e-05
+History size 4
+alpha m=-1 occupations
+   1.0000
+alpha m=0 occupations
+   1.0000   1.0000
+alpha m=1 occupations
+   1.0000
+beta m=0 occupations
+   1.0000
+DIIS step
+Evaluated energy -24.8544175070 (change from lowest -5.935586e-07)
+Density matrix difference 7.767738e-05 between lowest-energy and newest entry
+
+
+Iteration 5: 5 Fock evaluations energy -24.8544175070 change -5.935586e-07 DIIS error vector rms norm 1.714872e-06
+History size 5
+alpha m=-1 occupations
+   1.0000
+alpha m=0 occupations
+   1.0000   1.0000
+alpha m=1 occupations
+   1.0000
+beta m=0 occupations
+   1.0000
+DIIS step
+Evaluated energy -24.8544175148 (change from lowest -7.749126e-09)
+Density matrix difference 7.817174e-06 between lowest-energy and newest entry
+
+
+Iteration 6: 6 Fock evaluations energy -24.8544175148 change -7.749126e-09 DIIS error vector rms norm 2.592769e-07
+History size 6
+Converged to energy -24.8544175148!
+
+Running program took 8.57 s.
