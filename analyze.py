@@ -7,11 +7,22 @@ import os
 import math
 from matplotlib.ticker import StrMethodFormatter
 
+# Figure font parameters
+plt.rcParams.update({
+    'font.size': 11,
+    'axes.labelsize': 11,
+    'legend.fontsize': 11,
+    'font.family': 'lmodern',
+    'text.usetex': True,
+    'text.latex.preamble': (
+        r'\usepackage{lmodern}'
+    )
+})
 
 bases = ['cc-pVDZ', 'cc-pVTZ', 'cc-pVQZ', 'cc-pV5Z','aug-cc-pVDZ', 'aug-cc-pVTZ', 'aug-cc-pVQZ', 'aug-cc-pV5Z', 'HGBSP1-5', 'HGBSP1-7', 'HGBSP1-9', 'HGBSP2-5', 'HGBSP2-7', 'HGBSP2-9', 'HGBSP3-5', 'HGBSP3-7', 'HGBSP3-9', 'AHGBSP1-5', 'AHGBSP1-7', 'AHGBSP1-9', 'AHGBSP2-5', 'AHGBSP2-7', 'AHGBSP2-9', 'AHGBSP3-5', 'AHGBSP3-7', 'AHGBSP3-9']
 
 #atoms = ['H','He','Li','Be','B','C','N','O','F','Ne','Na','Mg','Al','Si','P','S','Cl','Ar']
-atoms = ["Li"]
+atoms = ["H", "Li"]
 
 
 # Recreate figures?
@@ -65,8 +76,20 @@ def load_fem_energy(atoms):
                 for line in f:
                     if 'Total                 energy:' in line:
                         line_split=line.split()
-                        mag_fields[field]=float(line_split[-1])
+                        e_core = float(line_split[-1])
                         break
+                lmax = 21
+                while True:
+                    if os.path.exists(f'../../magfield-basis/output/{at}/{field}/fem_{lmax}_{state}.log'):
+                        break
+                    lmax = lmax - 1
+                g = open(f'../../magfield-basis/output/{at}/{field}/fem_{lmax}_{state}.log')
+                for line in g:
+                    if 'Total                 energy:' in line:
+                        line_split=line.split()
+                        e_sap = float(line_split[-1])
+                        break
+            mag_fields[field]=min(e_core, e_sap)
             states[state]=mag_fields
         data[at]=states
 
