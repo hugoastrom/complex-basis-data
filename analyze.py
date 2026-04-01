@@ -21,36 +21,75 @@ plt.rcParams.update({
 
 bases = ['cc-pVDZ', 'cc-pVTZ', 'cc-pVQZ', 'cc-pV5Z','aug-cc-pVDZ', 'aug-cc-pVTZ', 'aug-cc-pVQZ', 'aug-cc-pV5Z', 'HGBSP1-5', 'HGBSP1-7', 'HGBSP1-9', 'HGBSP2-5', 'HGBSP2-7', 'HGBSP2-9', 'HGBSP3-5', 'HGBSP3-7', 'HGBSP3-9', 'AHGBSP1-5', 'AHGBSP1-7', 'AHGBSP1-9', 'AHGBSP2-5', 'AHGBSP2-7', 'AHGBSP2-9', 'AHGBSP3-5', 'AHGBSP3-7', 'AHGBSP3-9']
 
-#atoms = ['H','He','Li','Be','B','C','N','O','F','Ne','Na','Mg','Al','Si','P','S','Cl','Ar']
-atoms = ["H", "Li"]
-
+atoms = ['H','He','Li','Be','B','C','N','O','F','Ne','Na','Mg','Al','Si','P','S','Cl','Ar']
 
 # Recreate figures?
 do_figures = False
 
+def is_converged(atom, field, basis, state):
+    '''Check if calculation is converged'''
+
+    try:
+        f = open(f'output/{atom}/{field}/{basis}_{state}.stdout')
+    except:
+        raise FileNotFoundError(f'Can not open file output/{at}/{field}/{basis}_{state}.stdout')
+    for line in f:
+        if "Could not find basis for element" in line:
+            return None
+        if "Multiplicity does not match occupations!" in line: # This was a bug, the error is actually due to the basis not being able to adhere to symmetry requirements
+            return None
+        if 'Converged to energy' in line:
+            return True
+    with open(f'../../magfield-basis/output/{atom}/{field}/{basis}_{state}.log') as f:
+        for line in f:
+            if "Energy change" in line:
+                e_change = float(line.split()[-1])
+                if e_change >= 0.0:
+                    #print("    Saddle point found for state %i of %s at B=%s with the %s basis" %(state, atom, field, basis))
+                    return False
+    print("Energy not converged for state %i of %s at B=%s with the %s basis" %(state, atom, field, basis))
+    return False
+
+
 def load_gto_energy(basis, atoms):
-    '''Load GTO energies from Erkale stdout file'''
+    '''Load GTO energies from Erkale stdout file as well as energies from previous work'''
+
     data = {}
+    old_data = {}
     for at in atoms:
         states = {}
+        old_states = {}
         for state in range(n_states(at)):
             mag_fields = {}
+            old_fields = {}
             for field in np.arange(0.00, 0.62, 0.02):
                 field = '{:.2f}'.format(field)
-                mag_fields[field] = None
-                try:
+                energy = None
+                old_energy = None
+                if is_converged(at, field, basis, state):
                     f = open(f'output/{at}/{field}/{basis}_{state}.stdout')
+                    for line in f:
+                        if 'Converged to energy' in line:
+                            line_split = line.split()
+                            energy = float(line_split[-1].replace("!",""))
+                            break
+                try:
+                    g = open(f"../../magfield-basis/output/{at}/{field}/{basis}_{state}.log")
+                    for line in g:
+                        if "Total energy:" in line:
+                            line_split = line.split()
+                            old_energy = float(line_split[-1])
+                            break
                 except:
-                    raise FileNotFoundError(f'Can not open file output/{at}/{field}/{basis}_{state}.stdout')
-                for line in f:
-                    if 'Converged to energy' in line:
-                        line_split = line.split()
-                        mag_fields[field]=float(line_split[-1].replace("!",""))
-                        break
-            states[state]=mag_fields
-        data[at]=states
+                    continue                
+                mag_fields[field] = energy
+                old_fields[field] = old_energy
+            states[state] = mag_fields
+            old_states[state] = old_fields
+        data[at] = states
+        old_data[at] = old_states
 
-    return data
+    return data, old_data
 
 def n_states(at):
     n=0
@@ -89,41 +128,37 @@ def load_fem_energy(atoms):
                         line_split=line.split()
                         e_sap = float(line_split[-1])
                         break
-            mag_fields[field]=min(e_core, e_sap)
+                mag_fields[field]=min(e_core, e_sap)
             states[state]=mag_fields
         data[at]=states
 
     return data
 
-def difference_is_positive(atom, state):
+def difference_is_positive(data, atom, state):
     '''check if bste is positive'''
-    bste_positive = True
+
     for field in all_results['FEM'][atom][state]:
         try:
-            dE = all_results['AHGBSP3-9'][atom][state][field] - all_results['FEM'][atom][state][field]
+            dE = data['AHGBSP3-9'][atom][state][field] - all_results['FEM'][atom][state][field]
             if dE < -1e-6:
-                print("Negative BSTE for state %i = %s of %s at %s: dE = %.10f - %.10f = %.10f" %(state, make_labels(atom)[state], atom, field, all_results['AHGBSP3-9'][atom][state][field], all_results['FEM'][atom][state][field], dE))
+                print("Negative BSTE for state %i of %s at %s: dE = %.10f" %(state, atom, field, dE))
+                return False
         except:
-            print("State %i of %s not converged?" %(state, atom))
+            print("State %i of %s not converged at B=%s" %(state, atom, field))
             continue
-        bste_positive = False
-    return bste_positive
+    return True
 
 
-def compute_difference_vector(basis,atom,state):
+def compute_difference_vector(data, basis,atom,state):
     try:
-        return [ all_results[basis][atom][state][field] - all_results['FEM'][atom][state][field] for field in all_results['FEM'][atom][state] ]
+        return [ data[basis][atom][state][field] - all_results['FEM'][atom][state][field] for field in all_results['FEM'][atom][state] ]
     except:
         return None
 
 
-def compute_avg_bste(basis,atom,state):
-    error_vector = compute_difference_vector(basis,atom,state)
-    if error_vector is not None:
-        return np.mean(np.absolute(error_vector))
-    else:
-        return None
-
+def compute_avg_bste(data, basis,atom,state):
+    error_vector = compute_difference_vector(data, basis,atom,state)
+    return None if error_vector is None else np.mean(np.absolute(error_vector))
 
 def make_labels(at):
     '''make state labels'''
@@ -257,17 +292,22 @@ def table_total_energy(basis, atom, fname, label, caption):
 def table_mean_difference(bases, atom, fname, label, caption):
     '''Generate LaTeX table with mean absolute energy differences between FEM and GTO for all states'''
     # open .tex file
-    texfile=open('tables/'+fname,'w')
-    texfile.write('\\begin{table}\n')
+    texfile=open('../paper/tables/'+fname,'w')
+    texfile.write('\\begin{table*}\n')
     texfile.write('\centering\n')
     texfile.write('\\small\n')
-    texfile.write('\\begin{{tabular}}{{ll{}}}\n'.format('c'*len(bases)))
+    texfile.write('\\begin{{tabular}}{{ll{}}}\n'.format('|cc'*len(bases)))
     texfile.write('\hline\n')
 
     # header
-    texfile.write(' & state')
+    texfile.write(' &')
     for basis in bases:
-        texfile.write(f' & {basis}')
+        texfile.write(f" & \\multicolumn{{2}}{{|c}}{{{basis}}}")
+    texfile.write("\\\\\n")
+    texfile.write("\\hline \\hline\n")
+    texfile.write(' & state')
+    for _ in range(2):
+        texfile.write(f' & real & complex')
     texfile.write('\\\\ \n')
     texfile.write('\hline \hline\n')
 
@@ -275,19 +315,19 @@ def table_mean_difference(bases, atom, fname, label, caption):
     for state in range(n_states(atom)):
         texfile.write(f'{state} & {make_labels(atom)[state]}')
         for basis in bases:
-            texfile.write(' & ')
-            diff_vector = compute_difference_vector(basis,atom,state)
-            if diff_vector is not None:
-                diff = np.mean(np.absolute(diff_vector))
-                color = 'blue' if difference_is_positive(atom,state) else 'red'
-                texfile.write('\color{{{}}}{{ $ {:.3f} $ }}'.format(color, 1000*diff))
+            for data in [old_results, all_results]:
+                diff_vec = compute_difference_vector(data, basis,atom,state)
+                if diff_vec is not None:
+                    diff = np.mean(np.absolute(diff_vec))
+                    color = 'blue' if difference_is_positive(data, atom, state) else 'red'
+                    texfile.write(' & \color{{{}}}{{ $ {:.3f} $ }}'.format(color, 1000*diff))
         texfile.write('\\\\ \n')
 
     texfile.write('\hline\n')
     texfile.write('\end{tabular}\n')
     texfile.write(f'\caption{{{caption}}}\n')
     texfile.write(f'\label{{tab:{label}}}\n')
-    texfile.write('\end{table}\n')
+    texfile.write('\end{table*}\n')
     texfile.close()
 
 def find_min_max(at):
@@ -307,8 +347,11 @@ def find_min_max(at):
     diff = 0.0
     for state in range(n_states(at)):
         for field in all_results['FEM'][at][state]:
-            if diff < all_results['aug-cc-pVTZ'][at][state][field] - all_results['FEM'][at][state][field]:
-                diff = all_results['aug-cc-pVTZ'][at][state][field] - all_results['FEM'][at][state][field]
+            try:
+                if diff < all_results['aug-cc-pVTZ'][at][state][field] - all_results['FEM'][at][state][field]:
+                    diff = all_results['aug-cc-pVTZ'][at][state][field] - all_results['FEM'][at][state][field]
+            except:
+                continue
     
     Emax += diff/2 + 0.25
     return Emin, Emax
@@ -317,12 +360,12 @@ def plot_energies(at,basis):
     '''plots energy as a function of magnetic field strength for atom in basis'''
 
     for state in range(n_states(at)):
-        if  all_results[basis][at][state] is not None:
+        if all_results[basis][at][state] is not None:
 
             # FEM B fields and energies
             b_fields= [ float(field) for field in all_results['FEM'][at][state] ]
             fem_energies = [ all_results['FEM'][at][state][field] for field in all_results['FEM'][at][state] ]
-            plt.plot(b_fields, fem_energies, color = colors[state], linewidth=0.0, marker='s', label=f'{state}')
+            plt.plot(b_fields, fem_energies, color = colors[state], linewidth=0.0, marker='o', fillstyle="none", label=f'{state}')
 
             # GTO B fields and energies
             b_fields= [ float(field) for field in all_results[basis][at][state] ]
@@ -392,7 +435,7 @@ def print_fig(at, basis, fname, xlabel, ylabel, energy_plot):
     plt.ylabel(ylabel, fontsize=fontsize)
     plt.xticks(fontsize=fontsize)
     plt.yticks(fontsize=fontsize)
-    plt.savefig(f'figures/{fname}.png')
+    plt.savefig(f'../paper/figures/{fname}.pdf')
     plt.close()
 
 
@@ -461,13 +504,10 @@ colors = ['b','tab:orange','g','r','c','tab:pink','y','k','tab:brown']
 
 # load all results
 all_results = {'FEM' : load_fem_energy(atoms)}
+old_results = {}
 for basis in bases:
-    all_results[basis] = load_gto_energy(basis, atoms)
-
-for atom in atoms:
-    for iocc in range(n_states(atom)):
-        if not difference_is_positive(atom, iocc):
-            continue
+    all_results[basis] = load_gto_energy(basis, atoms)[0]
+    old_results[basis] = load_gto_energy(basis, atoms)[1]
 
 # write results to csv files
 #for basis in all_results:
@@ -487,19 +527,19 @@ for atom in atoms:
 # produce tables
 #for at in atoms:
 #    table_one_atom(at, bases, f'{at}_gto_tab.tex', f'{at}-gto', f'Mean absolute energy differences $\Delta E^\\text{{GTO}}$ in m$E_h$ for a variety of GTO basis sets for the {at} atom. States with all positive differences $\Delta E$ are shown in blue, and states that exhibit negative $\Delta E$ at one or more field strength(s) in red.', sideways=(n_states(at) > 6))
-#
+
 #for at in atoms:
   #  table_total_energy('FEM', at, f'{at}_fem_tab.tex', f'{at}-fem', f'Complete basis set limit total energies in $E_h$ for the {at} atom at all field strengths.')
 #    for basis in bases:
 #        table_total_energy(basis, at, f'{at}_{basis}_tab.tex', f'{at}-{basis}', f'Total energies in $E_h$ for the {at} atom in the {basis} basis set in fully uncontracted form, employing the real-orbital approximation.')
 
-#subset = ['aug-cc-pVTZ', 'AHGBSP3-9']
+subset = ['aug-cc-pVTZ', 'AHGBSP3-9']
 
 #for basis in subset:
 #    table_one_basis(atoms,basis,f'{basis}_tab.tex',f'{basis}',f'Energy differences $\Delta E$ in m$E_h$ for the fully uncontracted {basis} basis set. States with all positive $\Delta E$ shown in blue, and states that exhibit negative $\Delta E$ at one or more field strength shown in red.', sideways = True)
 
-#for at in atoms:
-#    table_mean_difference(subset, at, f'{at}-mean-diff.tex', f'{at}-mean-differ', f'MAEDs between GTO and FEM energies in m$E_h$ for {at} in the fully uncontracted {" and ".join(subset)} basis sets.')
+for at in atoms:
+    table_mean_difference(subset, at, f'{at}-mean-diff.tex', f'{at}-mean-differ', f'MAEDs between GTO and FEM energies in m$E_h$ for {at} in the fully uncontracted {" and ".join(subset)} basis sets.')
 
 
 # LaTeX input file for the manuscript figures
@@ -530,24 +570,42 @@ for atom in atoms:
 
 # plots of GTO BSTEs as function of magnetic field B
 #figures = open('figures/figures.tex', 'w')
-#for at in atoms:
-#    for basis in bases:
+for at in atoms:
+    for basis in bases:
         # energy plots
 #        figures.write('\\begin{figure}[H]\n')
 #        figures.write(f'\includegraphics[width=\linewidth]{{figures/{at}-{basis}.png}}\n')
 #        figures.write(f'\caption{{Total energies of all considered states of the {at} atom in the {basis} basis set in fully uncontracted form (solid lines). The FEM values are shown by the squares of the same color.}}\n')
 #        figures.write(f'\label{{fig:{at}-{basis}}}\n'.replace(',',''))
 #        figures.write('\end{figure}\n')
-#        if do_figures:
-#            print_fig(at, basis, f'{at}-{basis}', 'B/$B_0$', 'E/$E_h$', True)
+        if do_figures:
+            print_fig(at, basis, f'{at}-{basis}', 'B/$B_0$', 'E/$E_h$', True)
 #    figures.write('\clearpage\n')
 
 
 #figures.close()
 
 # generate SI text
-#SItext = open('manuscript/SItext.tex', 'w')
+SItext = open('../paper/SItext.tex', 'w')
 
+for at in atoms:
+    SItext.write(f"\\input{{tables/{at}-mean-diff.tex}}\n")
+    SItext.write("\\begin{figure}\n")
+    SItext.write("\\centering\n")
+    SItext.write("\\begin{subfigure}[b]{.49\\textwidth}\n")
+    SItext.write(f"\\includegraphics[width=\\textwidth]{{figures/{at}-aug-cc-pVTZ.pdf}}\n")
+    SItext.write("\\caption{aug-cc-pVTZ}\n")
+    SItext.write(f"\\label{{fig:{at}-aug-cc-pVTZ}}\n")
+    SItext.write("\\end{subfigure}\n")
+    SItext.write("\\begin{subfigure}[b]{.49\\textwidth}\n")
+    SItext.write(f"\\includegraphics[width=\\textwidth]{{figures/{at}-AHGBSP3-9.pdf}}\n")
+    SItext.write("\\caption{AHGBSP3-9}\n")
+    SItext.write(f"\\label{{fig:{at}-AHGBSP3-9}}\n")
+    SItext.write("\\end{subfigure}\n")
+    SItext.write(f"\\caption{{Total energy of the {at} atom as a function of the magnetic field strength B in the aug-cc-pVTZ (left) and AHGBSP3-9 (right) basis sets}}\n")
+    SItext.write(f"\\label{{fig:{at}}}\n")
+    SItext.write("\\end{figure}\n")
+    
 #SItext.write('\section{Convergence of Total Energies in FEM to the CBS Limit}')
 #SItext.write('We begin by showing that the complete basis set (CBS) limit is achieved with the employed finite element method (FEM) by plotting the convergence of the total energy at the field strength $B=0.60$ as a function of the angular truncation parameter $l_\\text{max}$.\n')
 #SItext.write('The energy difference $\\Delta E = E(l_\\text{max}) - E(l_\\text{max}-2)$ is shown\n')
