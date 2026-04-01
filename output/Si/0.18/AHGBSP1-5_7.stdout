@@ -8,7 +8,7 @@ the Free Software Foundation; either version 2 of the License, or
 
 Running on host silver.
 
-Current time is Tue 03 Feb 2026 17:07:22.
+Current time is Tue 17 Mar 2026 13:50:22.
 
 Current Settings used by ERKALE:
      AtomGuess      	                Auto	Method used for atomic guess (Auto for same as method)
@@ -50,7 +50,7 @@ Current Settings used by ERKALE:
      FittingCholeskyThreshold	           1.000e-08	Linear dependence threshold for pivoted Cholesky of Coulomb integrals in density fitting
      FittingMemory  	                1000	Amount of memory in MB to use for exchange fitting
      FittingThreshold	           1.000e-07	Linear dependence threshold for Coulomb integrals in density fitting
-     Guess          	              sapfit	Used guess: SAD (default), SADNO, core, GWH, SAP, or SAPfit
+     Guess          	                core	Used guess: SAD (default), SADNO, core, GWH, SAP, or SAPfit
      InitConvThr    	           1.000e-05	Initialization convergence threshold
      InputBohr      	               false	Use atomic units as input units instead of angstrom?
      IntegralThresh 	           1.000e-10	Integral screening threshold
@@ -63,7 +63,7 @@ Current Settings used by ERKALE:
      LinearSymmetry 	                true	Do special calculation on linear molecule along z axis
      LoadChk        	                    	Checkpoint file to load from
      Logfile        	          erkale.log	File to print out full information, stdout for screen
-     MaxInitIter    	                  50	Maximum number of iterations in the stepwise solutions
+     MaxInitIter    	                 100	Maximum number of iterations in the stepwise solutions
      MaxIter        	                 100	Maximum number of iterations in SCF cycle
      Method         	                  HF	Method used in calculation (HF or a DFT functional)
      Multiplicity   	                   5	Spin multiplicity
@@ -113,12 +113,12 @@ Basis set helfem_large.gbs found in file helfem_large.gbs in /home/lehtola/progr
 Screening by shell pairs and symmetry reduced dofs by factor 1.99.
 Individual screening reduced dofs by a total factor 1.99.
 Computing Cholesky vectors. Estimated memory size is 21 Mi - 71 Mi.
-Cholesky vectors no     0 -     0 computed, error is 3.082427e+01 (0.03 s).
-Cholesky vectors no     1 -     1 computed, error is 1.206046e+01 (0.03 s).
-Cholesky vectors no     2 -     7 computed, error is 3.473629e+00 (0.15 s).
-Cholesky vectors no     8 -    10 computed, error is 3.259104e+00 (0.08 s).
-Cholesky vectors no    11 -    11 computed, error is 2.770845e+00 (0.03 s).
-Cholesky vectors no    12 -    26 computed, error is 1.675724e+00 (0.31 s).
+Cholesky vectors no     0 -     0 computed, error is 3.082427e+01 (0.00 s).
+Cholesky vectors no     1 -     1 computed, error is 1.206046e+01 (0.00 s).
+Cholesky vectors no     2 -     7 computed, error is 3.473629e+00 (0.00 s).
+Cholesky vectors no     8 -    10 computed, error is 3.259104e+00 (0.00 s).
+Cholesky vectors no    11 -    11 computed, error is 2.770845e+00 (0.00 s).
+Cholesky vectors no    12 -    26 computed, error is 1.675724e+00 (0.00 s).
 Cholesky vectors no    27 -    27 computed, error is 9.867769e-01 (0.00 s).
 Cholesky vectors no    28 -    30 computed, error is 8.354535e-01 (0.00 s).
 Cholesky vectors no    31 -    45 computed, error is 6.987764e-01 (0.00 s).
@@ -129,8 +129,8 @@ Cholesky vectors no    77 -    79 computed, error is 1.806353e-01 (0.00 s).
 Cholesky vectors no    80 -    80 computed, error is 1.793768e-01 (0.00 s).
 Cholesky vectors no    81 -    90 computed, error is 1.668178e-01 (0.00 s).
 Cholesky vectors no    91 -   100 computed, error is 1.514160e-01 (0.01 s).
-Cholesky vectors no   101 -   115 computed, error is 1.014948e-01 (0.01 s).
-Cholesky vectors no   116 -   130 computed, error is 7.689493e-02 (0.01 s).
+Cholesky vectors no   101 -   115 computed, error is 1.014948e-01 (0.00 s).
+Cholesky vectors no   116 -   130 computed, error is 7.689493e-02 (0.00 s).
 Cholesky vectors no   131 -   140 computed, error is 6.539249e-02 (0.01 s).
 Cholesky vectors no   141 -   155 computed, error is 4.609135e-02 (0.01 s).
 Cholesky vectors no   156 -   161 computed, error is 4.219228e-02 (0.00 s).
@@ -149,7 +149,7 @@ Cholesky vectors no   269 -   278 computed, error is 7.202839e-03 (0.01 s).
 Cholesky vectors no   279 -   288 computed, error is 6.492862e-03 (0.01 s).
 Cholesky vectors no   289 -   298 computed, error is 5.698844e-03 (0.01 s).
 Cholesky vectors no   299 -   313 computed, error is 3.857763e-03 (0.02 s).
-Cholesky vectors no   314 -   319 computed, error is 2.486749e-03 (0.00 s).
+Cholesky vectors no   314 -   319 computed, error is 2.486749e-03 (0.01 s).
 Cholesky vectors no   320 -   334 computed, error is 2.405103e-03 (0.01 s).
 Cholesky vectors no   335 -   344 computed, error is 1.831371e-03 (0.01 s).
 Cholesky vectors no   345 -   354 computed, error is 1.675267e-03 (0.01 s).
@@ -184,17 +184,18 @@ Cholesky vectors no   604 -   604 computed, error is 3.034432e-06 (0.00 s).
 Cholesky vectors no   605 -   614 computed, error is 3.002222e-06 (0.01 s).
 Cholesky vectors no   615 -   617 computed, error is 2.963495e-06 (0.00 s).
 Cholesky vectors no   618 -   632 computed, error is 2.219137e-06 (0.01 s).
-Cholesky vectors no   633 -   647 computed, error is 1.463319e-06 (0.01 s).
-Cholesky vectors no   648 -   657 computed, error is 9.694696e-07 (0.01 s).
+Cholesky vectors no   633 -   647 computed, error is 1.463319e-06 (0.02 s).
+Cholesky vectors no   648 -   657 computed, error is 9.694696e-07 (0.02 s).
 Cholesky vectors no   658 -   667 computed, error is 6.877142e-07 (0.01 s).
-Cholesky vectors no   668 -   682 computed, error is 4.974345e-07 (0.01 s).
-Cholesky vectors no   683 -   697 computed, error is 4.235453e-07 (0.01 s).
+Cholesky vectors no   668 -   682 computed, error is 4.974345e-07 (0.02 s).
+Cholesky vectors no   683 -   697 computed, error is 4.235453e-07 (0.02 s).
 Cholesky vectors no   698 -   702 computed, error is 3.495900e-07 (0.02 s).
 Cholesky vectors no   703 -   703 computed, error is 3.116894e-07 (0.00 s).
 Cholesky vectors no   704 -   713 computed, error is 2.211073e-07 (0.01 s).
-Cholesky vectors no   714 -   719 computed, error is 2.126948e-07 (0.00 s).
+Cholesky vectors no   714 -   719 computed, error is 2.126948e-07 (0.01 s).
 Cholesky vectors no   720 -   726 computed, error is 1.357230e-07 (0.01 s).
 Cholesky vectors no   727 -   729 computed, error is 1.079732e-07 (0.00 s).
-Cholesky vectors no   730 -   744 computed, error is 3.228436e-08 (0.01 s).
+Cholesky vectors no   730 -   744 computed, error is 3.228436e-08 (0.02 s).
 terminate called after throwing an instance of 'std::logic_error'
-  what():  Multiplicity does not match occupations!
+  what():  Not enough basis functions to satisfy symmetry restrictions!
+

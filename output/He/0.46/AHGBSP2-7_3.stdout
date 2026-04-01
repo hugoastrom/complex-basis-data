@@ -8,7 +8,7 @@ the Free Software Foundation; either version 2 of the License, or
 
 Running on host silver.
 
-Current time is Mon 19 Jan 2026 20:05:09.
+Current time is Mon 02 Mar 2026 17:02:35.
 
 Current Settings used by ERKALE:
      AtomGuess      	                Auto	Method used for atomic guess (Auto for same as method)
@@ -50,7 +50,7 @@ Current Settings used by ERKALE:
      FittingCholeskyThreshold	           1.000e-08	Linear dependence threshold for pivoted Cholesky of Coulomb integrals in density fitting
      FittingMemory  	                1000	Amount of memory in MB to use for exchange fitting
      FittingThreshold	           1.000e-07	Linear dependence threshold for Coulomb integrals in density fitting
-     Guess          	              sapfit	Used guess: SAD (default), SADNO, core, GWH, SAP, or SAPfit
+     Guess          	                core	Used guess: SAD (default), SADNO, core, GWH, SAP, or SAPfit
      InitConvThr    	           1.000e-05	Initialization convergence threshold
      InputBohr      	               false	Use atomic units as input units instead of angstrom?
      IntegralThresh 	           1.000e-10	Integral screening threshold
@@ -63,7 +63,7 @@ Current Settings used by ERKALE:
      LinearSymmetry 	                true	Do special calculation on linear molecule along z axis
      LoadChk        	                    	Checkpoint file to load from
      Logfile        	          erkale.log	File to print out full information, stdout for screen
-     MaxInitIter    	                  50	Maximum number of iterations in the stepwise solutions
+     MaxInitIter    	                 100	Maximum number of iterations in the stepwise solutions
      MaxIter        	                 100	Maximum number of iterations in SCF cycle
      Method         	                  HF	Method used in calculation (HF or a DFT functional)
      Multiplicity   	                   3	Spin multiplicity
@@ -131,7 +131,7 @@ Cholesky vectors no    72 -    86 computed, error is 8.562535e-02 (0.00 s).
 Cholesky vectors no    87 -    96 computed, error is 5.786859e-02 (0.00 s).
 Cholesky vectors no    97 -    97 computed, error is 4.121793e-02 (0.00 s).
 Cholesky vectors no    98 -   107 computed, error is 3.934356e-02 (0.01 s).
-Cholesky vectors no   108 -   122 computed, error is 2.014050e-02 (0.01 s).
+Cholesky vectors no   108 -   122 computed, error is 2.014050e-02 (0.00 s).
 Cholesky vectors no   123 -   137 computed, error is 1.980469e-02 (0.01 s).
 Cholesky vectors no   138 -   147 computed, error is 1.554949e-02 (0.01 s).
 Cholesky vectors no   148 -   148 computed, error is 1.390477e-02 (0.00 s).
@@ -151,10 +151,10 @@ Cholesky vectors no   248 -   262 computed, error is 1.823068e-03 (0.01 s).
 Cholesky vectors no   263 -   272 computed, error is 1.457230e-03 (0.01 s).
 Cholesky vectors no   273 -   287 computed, error is 1.022324e-03 (0.01 s).
 Cholesky vectors no   288 -   290 computed, error is 8.225766e-04 (0.00 s).
-Cholesky vectors no   291 -   300 computed, error is 5.725738e-04 (0.02 s).
+Cholesky vectors no   291 -   300 computed, error is 5.725738e-04 (0.01 s).
 Cholesky vectors no   301 -   303 computed, error is 5.231714e-04 (0.00 s).
 Cholesky vectors no   304 -   318 computed, error is 4.816894e-04 (0.01 s).
-Cholesky vectors no   319 -   325 computed, error is 3.560128e-04 (0.01 s).
+Cholesky vectors no   319 -   325 computed, error is 3.560128e-04 (0.00 s).
 Cholesky vectors no   326 -   335 computed, error is 3.542007e-04 (0.01 s).
 Cholesky vectors no   336 -   350 computed, error is 3.371358e-04 (0.01 s).
 Cholesky vectors no   351 -   356 computed, error is 1.422465e-04 (0.00 s).
@@ -180,7 +180,7 @@ Cholesky vectors no   500 -   509 computed, error is 2.484413e-06 (0.02 s).
 Cholesky vectors no   510 -   519 computed, error is 1.787784e-06 (0.01 s).
 Cholesky vectors no   520 -   522 computed, error is 1.554545e-06 (0.00 s).
 Cholesky vectors no   523 -   523 computed, error is 8.660406e-07 (0.00 s).
-Cholesky vectors no   524 -   529 computed, error is 8.369436e-07 (0.01 s).
+Cholesky vectors no   524 -   529 computed, error is 8.369436e-07 (0.00 s).
 Cholesky vectors no   530 -   544 computed, error is 6.681853e-07 (0.01 s).
 Cholesky vectors no   545 -   554 computed, error is 4.725554e-07 (0.01 s).
 Cholesky vectors no   555 -   569 computed, error is 3.637809e-07 (0.01 s).
@@ -190,8 +190,8 @@ Cholesky vectors no   581 -   585 computed, error is 1.415327e-07 (0.00 s).
 Cholesky vectors no   586 -   586 computed, error is 1.078877e-07 (0.00 s).
 Cholesky vectors no   587 -   589 computed, error is 1.024157e-07 (0.00 s).
 Cholesky vectors no   590 -   604 computed, error is 8.187673e-08 (0.03 s).
-Cholesky decomposition finished in 0.57 s. Realized memory size is 39 Mi 401 ki.
-Time use: integrals 9.3 %, linear algebra 90.7 %.
+Cholesky decomposition finished in 0.45 s. Realized memory size is 39 Mi 401 ki.
+Time use: integrals 10.0 %, linear algebra 90.0 %.
 1034 shell pairs and 1 nuclei
 SAP potential formed in 0.003 s.
 Smallest eigenvalue of overlap matrix is 2.95e-03, reciprocal condition number is 7.69e-04.
@@ -209,66 +209,55 @@ Nela = 2 Nelb = 0
 
 
 Solving SCF
-Evaluated energy  26.9441442075 (change from lowest 2.694414e+01)
+Evaluated energy -2.5666181145 (change from lowest -2.566618e+00)
 
 
-Iteration 1: 1 Fock evaluations energy  26.9441442075 change  2.694414e+01 DIIS error vector rms norm 1.696782e-01
+Iteration 1: 1 Fock evaluations energy -2.5666181145 change -2.566618e+00 DIIS error vector rms norm 1.930304e-03
 History size 1
 alpha m=0 occupations
    1.0000
 alpha m=1 occupations
    1.0000
-EDIIS step
-Evaluated energy -2.1160466696 (change from lowest -2.906019e+01)
-Density matrix difference 6.000726e-02 between lowest-energy and newest entry
+EDIIS+DIIS step
+Evaluated energy -2.5774280878 (change from lowest -1.080997e-02)
+Density matrix difference 4.967087e-03 between lowest-energy and newest entry
 
 
-Iteration 2: 2 Fock evaluations energy -2.1160466696 change -2.906019e+01 DIIS error vector rms norm 8.336547e-04
+Iteration 2: 2 Fock evaluations energy -2.5774280878 change -1.080997e-02 DIIS error vector rms norm 3.597212e-04
 History size 2
 alpha m=0 occupations
    1.0000
 alpha m=1 occupations
    1.0000
 EDIIS+DIIS step
-Evaluated energy -2.1176189432 (change from lowest -1.572274e-03)
-Density matrix difference 1.735855e-03 between lowest-energy and newest entry
+Evaluated energy -2.5778478639 (change from lowest -4.197761e-04)
+Density matrix difference 1.107069e-03 between lowest-energy and newest entry
 
 
-Iteration 3: 3 Fock evaluations energy -2.1176189432 change -1.572274e-03 DIIS error vector rms norm 2.668737e-04
+Iteration 3: 3 Fock evaluations energy -2.5778478639 change -4.197761e-04 DIIS error vector rms norm 3.618263e-05
 History size 3
 alpha m=0 occupations
    1.0000
 alpha m=1 occupations
    1.0000
-EDIIS+DIIS step
-Evaluated energy -2.1178487725 (change from lowest -2.298293e-04)
-Density matrix difference 9.798766e-04 between lowest-energy and newest entry
+DIIS step
+Evaluated energy -2.5778522023 (change from lowest -4.338430e-06)
+Density matrix difference 1.167280e-04 between lowest-energy and newest entry
 
 
-Iteration 4: 4 Fock evaluations energy -2.1178487725 change -2.298293e-04 DIIS error vector rms norm 2.515674e-05
+Iteration 4: 4 Fock evaluations energy -2.5778522023 change -4.338430e-06 DIIS error vector rms norm 8.347993e-06
 History size 4
 alpha m=0 occupations
    1.0000
 alpha m=1 occupations
    1.0000
 DIIS step
-Evaluated energy -2.1178523790 (change from lowest -3.606487e-06)
-Density matrix difference 1.313575e-04 between lowest-energy and newest entry
+Evaluated energy -2.5778524992 (change from lowest -2.969361e-07)
+Density matrix difference 3.839978e-05 between lowest-energy and newest entry
 
 
-Iteration 5: 5 Fock evaluations energy -2.1178523790 change -3.606487e-06 DIIS error vector rms norm 4.398126e-06
+Iteration 5: 5 Fock evaluations energy -2.5778524992 change -2.969361e-07 DIIS error vector rms norm 9.451751e-07
 History size 5
-alpha m=0 occupations
-   1.0000
-alpha m=1 occupations
-   1.0000
-DIIS step
-Evaluated energy -2.1178525042 (change from lowest -1.252393e-07)
-Density matrix difference 2.828103e-05 between lowest-energy and newest entry
+Converged to energy -2.5778524992!
 
-
-Iteration 6: 6 Fock evaluations energy -2.1178525042 change -1.252393e-07 DIIS error vector rms norm 1.888802e-07
-History size 6
-Converged to energy -2.1178525042!
-
-Running program took 0.98 s.
+Running program took 0.74 s.
