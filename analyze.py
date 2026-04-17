@@ -19,12 +19,12 @@ plt.rcParams.update({
     )
 })
 
-bases = ['cc-pVDZ', 'cc-pVTZ', 'cc-pVQZ', 'cc-pV5Z','aug-cc-pVDZ', 'aug-cc-pVTZ', 'aug-cc-pVQZ', 'aug-cc-pV5Z', 'HGBSP1-5', 'HGBSP1-7', 'HGBSP1-9', 'HGBSP2-5', 'HGBSP2-7', 'HGBSP2-9', 'HGBSP3-5', 'HGBSP3-7', 'HGBSP3-9', 'AHGBSP1-5', 'AHGBSP1-7', 'AHGBSP1-9', 'AHGBSP2-5', 'AHGBSP2-7', 'AHGBSP2-9', 'AHGBSP3-5', 'AHGBSP3-7', 'AHGBSP3-9']
-
+#bases = ['cc-pVDZ', 'cc-pVTZ', 'cc-pVQZ', 'cc-pV5Z','aug-cc-pVDZ', 'aug-cc-pVTZ', 'aug-cc-pVQZ', 'aug-cc-pV5Z', 'HGBSP1-5', 'HGBSP1-7', 'HGBSP1-9', 'HGBSP2-5', 'HGBSP2-7', 'HGBSP2-9', 'HGBSP3-5', 'HGBSP3-7', 'HGBSP3-9', 'AHGBSP1-5', 'AHGBSP1-7', 'AHGBSP1-9', 'AHGBSP2-5', 'AHGBSP2-7', 'AHGBSP2-9', 'AHGBSP3-5', 'AHGBSP3-7', 'AHGBSP3-9']
+bases = ["aug-cc-pVTZ", "AHGBSP3-9"]
 atoms = ['H','He','Li','Be','B','C','N','O','F','Ne','Na','Mg','Al','Si','P','S','Cl','Ar']
 
 # Recreate figures?
-do_figures = False
+do_figures = True
 
 def is_converged(atom, field, basis, state):
     '''Check if calculation is converged'''
@@ -45,7 +45,7 @@ def is_converged(atom, field, basis, state):
             if "Energy change" in line:
                 e_change = float(line.split()[-1])
                 if e_change >= 0.0:
-                    #print("    Saddle point found for state %i of %s at B=%s with the %s basis" %(state, atom, field, basis))
+                    print("    Saddle point found for state %i of %s at B=%s with the %s basis" %(state, atom, field, basis))
                     return False
     print("Energy not converged for state %i of %s at B=%s with the %s basis" %(state, atom, field, basis))
     return False
@@ -71,8 +71,18 @@ def load_gto_energy(basis, atoms):
                     for line in f:
                         if 'Converged to energy' in line:
                             line_split = line.split()
-                            energy = float(line_split[-1].replace("!",""))
+                            core_energy = float(line_split[-1].replace("!",""))
                             break
+                    try:
+                        f = open(f'output/{at}/{field}/sap_{basis}_{state}.stdout')
+                        for line in f:
+                            if 'Converged to energy' in line:
+                                line_split = line.split()
+                                sap_energy = float(line_split[-1].replace("!",""))
+                                break
+                    except:
+                        sap_energy = Noney
+                    energy = min(core_energy, sap_energy) if sap_energy else core_energy
                 try:
                     g = open(f"../../magfield-basis/output/{at}/{field}/{basis}_{state}.log")
                     for line in g:
@@ -141,10 +151,8 @@ def difference_is_positive(data, atom, state):
         try:
             dE = data['AHGBSP3-9'][atom][state][field] - all_results['FEM'][atom][state][field]
             if dE < -1e-6:
-                print("Negative BSTE for state %i of %s at %s: dE = %.10f" %(state, atom, field, dE))
                 return False
         except:
-            print("State %i of %s not converged at B=%s" %(state, atom, field))
             continue
     return True
 
@@ -506,9 +514,14 @@ colors = ['b','tab:orange','g','r','c','tab:pink','y','k','tab:brown']
 all_results = {'FEM' : load_fem_energy(atoms)}
 old_results = {}
 for basis in bases:
-    all_results[basis] = load_gto_energy(basis, atoms)[0]
-    old_results[basis] = load_gto_energy(basis, atoms)[1]
+    new_e, old_e = load_gto_energy(basis, atoms)
+    all_results[basis] = new_e
+    old_results[basis] = old_e
 
+for atom in atoms:
+    for state in range(n_states(atom)):
+        if not difference_is_positive(all_results, atom, state):
+            print("Negative BSTE for state %i of %s" %(state, atom))
 # write results to csv files
 #for basis in all_results:
 #    for at in all_results[basis]:
