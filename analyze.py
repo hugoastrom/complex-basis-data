@@ -81,7 +81,7 @@ def load_gto_energy(basis, atoms):
                                 sap_energy = float(line_split[-1].replace("!",""))
                                 break
                     except:
-                        sap_energy = Noney
+                        sap_energy = None
                     energy = min(core_energy, sap_energy) if sap_energy else core_energy
                 try:
                     g = open(f"../../magfield-basis/output/{at}/{field}/{basis}_{state}.log")
@@ -186,7 +186,30 @@ def make_labels(at):
         occ_list.append(occ)
     return occ_list
 
+def symmetric_state(atom, state):
+    '''Is state exact with real orbitals?'''
 
+    m_vals = []
+    occs = []
+    with open(f"configs/{atom}_{state}.occs") as f:
+        for line in f:
+            alpha_e = int(line.split()[0])
+            beta_e = int(line.split()[1])
+            m = int(line.split()[2])
+            m_vals.append(m)
+            occs.append((alpha_e, beta_e))
+
+    min_m = min(min(m_vals), -max(m_vals))
+    max_m = max(-min(m_vals), max(m_vals))
+    orbs = {m: (0, 0) for m in range(min_m, max_m + 1)}
+    for im,m in enumerate(m_vals):
+        orbs[m] = occs[im]
+
+    for m in orbs.keys():
+        if not orbs[m] == orbs[-m]:
+            return False
+
+    return True    
 
 def table_one_atom(atom,subset,fname,label,caption,sideways):
     '''Generate LaTeX table with BSTE for atom'''
@@ -536,6 +559,10 @@ for atom in atoms:
 #            csvfile.write('\n')
 #        csvfile.close()
 
+for atom in atoms:
+    for state in range(n_states(atom)):
+        if not symmetric_state(atom, state):
+            print(make_labels(atom)[state])
 
 # produce tables
 #for at in atoms:
