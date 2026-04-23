@@ -26,11 +26,11 @@ atoms = ['H','He','Li','Be','B','C','N','O','F','Ne','Na','Mg','Al','Si','P','S'
 # Recreate figures?
 do_figures = True
 
-def is_converged(atom, field, basis, state):
+def is_converged(fname):
     '''Check if calculation is converged'''
 
     try:
-        f = open(f'output/{atom}/{field}/{basis}_{state}.stdout')
+        f = open(fname)
     except:
         raise FileNotFoundError(f'Can not open file output/{at}/{field}/{basis}_{state}.stdout')
     for line in f:
@@ -40,7 +40,16 @@ def is_converged(atom, field, basis, state):
             return None
         if 'Converged to energy' in line:
             return True
-    with open(f'../../magfield-basis/output/{atom}/{field}/{basis}_{state}.log') as f:
+    oldfname = f"../../magfield-basis/{fname}".replace("sap_","").replace("stdout","log")
+    params = fname.split("/")
+    atom = params[1]
+    field = params[2]
+    try:
+        basis, state = params[3].split("_")
+    except:
+        _, basis, state = params[3].split("_")
+    state = int(state.replace(".stdout",""))
+    with open(oldfname) as f:
         for line in f:
             if "Energy change" in line:
                 e_change = float(line.split()[-1])
@@ -64,25 +73,31 @@ def load_gto_energy(basis, atoms):
             old_fields = {}
             for field in np.arange(0.00, 0.62, 0.02):
                 field = '{:.2f}'.format(field)
-                energy = None
-                old_energy = None
-                if is_converged(at, field, basis, state):
-                    f = open(f'output/{at}/{field}/{basis}_{state}.stdout')
+                core_energy = None
+                fname = f'output/{at}/{field}/{basis}_{state}.stdout'
+                if is_converged(fname):
+                    f = open(fname)
                     for line in f:
                         if 'Converged to energy' in line:
                             line_split = line.split()
                             core_energy = float(line_split[-1].replace("!",""))
                             break
-                    try:
-                        f = open(f'output/{at}/{field}/sap_{basis}_{state}.stdout')
-                        for line in f:
-                            if 'Converged to energy' in line:
-                                line_split = line.split()
-                                sap_energy = float(line_split[-1].replace("!",""))
-                                break
-                    except:
-                        sap_energy = None
-                    energy = min(core_energy, sap_energy) if sap_energy else core_energy
+
+                sap_energy = None
+                fname = f'output/{at}/{field}/sap_{basis}_{state}.stdout'
+                if is_converged(fname):
+                    f = open(fname)
+                    for line in f:
+                        if 'Converged to energy' in line:
+                            line_split = line.split()
+                            sap_energy = float(line_split[-1].replace("!",""))
+                            break
+                try:
+                    energy = min(core_energy, sap_energy)
+                except:
+                    energy = core_energy if sap_energy == None else sap_energy
+
+                old_energy = None
                 try:
                     g = open(f"../../magfield-basis/output/{at}/{field}/{basis}_{state}.log")
                     for line in g:
@@ -91,7 +106,7 @@ def load_gto_energy(basis, atoms):
                             old_energy = float(line_split[-1])
                             break
                 except:
-                    continue                
+                    continue
                 mag_fields[field] = energy
                 old_fields[field] = old_energy
             states[state] = mag_fields
@@ -542,10 +557,10 @@ for basis in bases:
     all_results[basis] = new_e
     old_results[basis] = old_e
 
-for atom in atoms:
-    for state in range(n_states(atom)):
-        if not difference_is_positive(all_results, atom, state):
-            print("Negative BSTE for state %i of %s" %(state, atom))
+#for atom in atoms:
+#    for state in range(n_states(atom)):
+#        if not difference_is_positive(all_results, atom, state):
+#            print("Negative BSTE for state %i of %s" %(state, atom))
 # write results to csv files
 #for basis in all_results:
 #    for at in all_results[basis]:
