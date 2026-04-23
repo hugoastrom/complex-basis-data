@@ -1,0 +1,14 @@
+#!/bin/bash
+
+#SBATCH --job-name=He-mag-fields-gto
+#SBATCH -e out_%j
+#SBATCH -o out_%j
+#SBATCH --mem-per-cpu=500
+#SBATCH -t 14-00:00:00
+#SBATCH -n 8
+#SBATCH -p normal
+
+../makeinp_sap_gto.sh
+#../check_rmax.sh
+#../makeinp_real_gto.sh
+

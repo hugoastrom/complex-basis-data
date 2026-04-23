@@ -2,8 +2,7 @@
 
 
 p=$PWD
-#for at in Al Ar B Be C Cl F H He Li Mg N Na Ne O P S Si; do
-for at in He F Si; do
+for at in Al Ar B Be C Cl F H He Li Mg N Na Ne O P S Si; do
     if [[ ! -d $p/$at ]]; then
 	mkdir -p $p/$at
     fi
@@ -13,7 +12,7 @@ for at in He F Si; do
 	cat > submit_${calc}.in <<EOF
 #!/bin/bash
 
-#SBATCH --job-name=${at}-mag-fields-${calc}
+#SBATCH --job-name=${at}-${calc}-sap
 #SBATCH -e out_%j
 #SBATCH -o out_%j
 #SBATCH --mem-per-cpu=500
@@ -21,9 +20,9 @@ for at in He F Si; do
 #SBATCH -n 8
 #SBATCH -p normal
 
-#../makeinp_${calc}.sh
+../makeinp_sap_${calc}.sh
 #../check_rmax.sh
-../makeinp_real_gto.sh
+#../makeinp_real_gto.sh
 
 EOF
 	if [[ ! -f .submit_${calc} ]]; then

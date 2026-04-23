@@ -25,7 +25,6 @@ for((iB=0;iB<${#Bvals_gto[@]};iB++)); do
            if [[ ! -f ${occfile} ]]; then
                break
            fi
-           Eref=0.0
 
            # Find out multiplicity
            M=$(cat ${occfile} |awk 'BEGIN {na=0; nb=0} {na+=$1; nb+=$2} END {print na-nb+1}')
