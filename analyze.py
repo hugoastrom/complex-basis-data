@@ -344,7 +344,8 @@ def table_mean_difference(bases, atom, fname, label, caption):
 
     # write data
     for state in range(n_states(atom)):
-        texfile.write(f'{state} & {make_labels(atom)[state]}')
+        color = "magenta" if symmetric_state(atom, state) else "black"
+        texfile.write(f'{state} & \\color{{{color}}}{{{make_labels(atom)[state]}}}')
         for basis in bases:
             for data in [old_results, all_results]:
                 diff_vec = compute_difference_vector(data, basis,atom,state)
@@ -558,11 +559,6 @@ for atom in atoms:
 #                    csvfile.write(',None')
 #            csvfile.write('\n')
 #        csvfile.close()
-
-for atom in atoms:
-    for state in range(n_states(atom)):
-        if not symmetric_state(atom, state):
-            print(make_labels(atom)[state])
 
 # produce tables
 #for at in atoms:
