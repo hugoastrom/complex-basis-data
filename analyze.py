@@ -24,7 +24,9 @@ bases = ["aug-cc-pVTZ", "AHGBSP3-9"]
 atoms = ['H','He','Li','Be','B','C','N','O','F','Ne','Na','Mg','Al','Si','P','S','Cl','Ar']
 
 # Recreate figures?
-do_figures = True
+do_figures = False
+
+hartree_to_kcal_per_mol = 627.503
 
 def is_converged(fname):
     '''Check if calculation is converged'''
@@ -153,7 +155,7 @@ def load_fem_energy(atoms):
                         line_split=line.split()
                         e_sap = float(line_split[-1])
                         break
-                mag_fields[field]=min(e_core, e_sap)
+                mag_fields[field] = min(e_core, e_sap)
             states[state]=mag_fields
         data[at]=states
 
@@ -339,42 +341,45 @@ def table_mean_difference(bases, atom, fname, label, caption):
     '''Generate LaTeX table with mean absolute energy differences between FEM and GTO for all states'''
     # open .tex file
     texfile=open('../paper/tables/'+fname,'w')
-    texfile.write('\\begin{table*}\n')
+    texfile.write('\\begin{table}\n')
     texfile.write('\centering\n')
     texfile.write('\\small\n')
-    texfile.write('\\begin{{tabular}}{{ll{}}}\n'.format('|cc'*len(bases)))
+    #texfile.write('\\begin{{tabular}}{{ll{}}}\n'.format('|cc'*len(bases)))
+    texfile.write('\\begin{{tabular}}{{l{}}}\n'.format('|cc'*len(bases)))
     texfile.write('\hline\n')
 
     # header
-    texfile.write(' &')
+    #texfile.write(' &')
     for basis in bases:
         texfile.write(f" & \\multicolumn{{2}}{{|c}}{{{basis}}}")
     texfile.write("\\\\\n")
     texfile.write("\\hline \\hline\n")
-    texfile.write(' & state')
+    #texfile.write(' & state')
+    texfile.write('state')
     for _ in range(2):
-        texfile.write(f' & real & complex')
+        texfile.write(' & $Y_{lm}$ & $Y_l^m$')
     texfile.write('\\\\ \n')
     texfile.write('\hline \hline\n')
 
     # write data
     for state in range(n_states(atom)):
         color = "magenta" if symmetric_state(atom, state) else "black"
-        texfile.write(f'{state} & \\color{{{color}}}{{{make_labels(atom)[state]}}}')
+        #texfile.write(f'{state} & \\color{{{color}}}{{{make_labels(atom)[state]}}}')
+        texfile.write(f'\\color{{{color}}}{{{make_labels(atom)[state]}}}')
         for basis in bases:
             for data in [old_results, all_results]:
                 diff_vec = compute_difference_vector(data, basis,atom,state)
                 if diff_vec is not None:
                     diff = np.mean(np.absolute(diff_vec))
                     color = 'blue' if difference_is_positive(data, atom, state) else 'red'
-                    texfile.write(' & \color{{{}}}{{ $ {:.3f} $ }}'.format(color, 1000*diff))
+                    texfile.write(' & \\tiny{{\color{{{}}}{{ $ {:.3f} $ }}}}'.format(color, 1000*diff))
         texfile.write('\\\\ \n')
 
     texfile.write('\hline\n')
     texfile.write('\end{tabular}\n')
     texfile.write(f'\caption{{{caption}}}\n')
     texfile.write(f'\label{{tab:{label}}}\n')
-    texfile.write('\end{table*}\n')
+    texfile.write('\end{table}\n')
     texfile.close()
 
 def find_min_max(at):
@@ -486,55 +491,77 @@ def print_fig(at, basis, fname, xlabel, ylabel, energy_plot):
     plt.close()
 
 
-def print_toc(atom_subset, basis_subset, fname, ylabel):
+def print_toc(atom_subset, basis, fname, ylabel):
     '''Print TOC violin plot'''
-    fontsize=23
-    errors = []
-    xlabel = []
-    for atom in atom_subset:
-        for basis in basis_subset:
-            ers_basis = [ compute_avg_bste(basis,atom,state) for state in range(n_states(atom)) ]
-            errors.append(ers_basis)
-            xlabel.append(f'{atom} {basis}')
 
-    fig, ax = plt.subplots(figsize=(13, 7))
-    plots = ax.violinplot(errors, vert=True, showmedians=True, showextrema=True, widths=1)
+    fontsize=46
+    #errors = []
+    #xlabel = []
+    #for atom in atom_subset:
+    #    for idata, data in enumerate([old_results, all_results]):
+    #        ers_basis = [ compute_avg_bste(data,basis,atom,state) for state in range(n_states(atom)) if compute_avg_bste(data,basis,atom,state) ]
+    #        errors.append(ers_basis)
+    #        xlabel.append(f'{atom}') if idata == 0 else xlabel.append("")
+
+    #fig, ax = plt.subplots(figsize=(13, 7))
+    #plots = ax.violinplot(errors, vert=True, showmedians=True, showextrema=True, widths=1)
 
     # set colors of violin patches
-    for pc, color in zip(plots['bodies'], colors):
-        pc.set_facecolor(color)
+    #for pc, color in zip(plots['bodies'], [c for c in violin_colors for i in range(2)]):
+    #    pc.set_facecolor(color)
 
     # set color of median line
-    for param in ['cmedians', 'cmins', 'cmaxes', 'cbars']:
-        plots[param].set_colors(color)
+    #for param in ['cmedians', 'cmins', 'cmaxes', 'cbars']:
+    #    plots[param].set_colors("k")
 
     # set labels
-    num_plots = [ i+1 for i in range(len(errors)) ]
-    ax.set_xticks(num_plots, labels=xlabel, fontsize=fontsize, rotation=90)
-    ax.set_ylabel(ylabel, fontsize=fontsize)
+    #num_plots = [ i+1 for i in range(len(errors)) ]
+    #ax.set_xticks(num_plots, labels=xlabel, fontsize=fontsize, rotation=45)
+    #ax.set_ylabel(ylabel, fontsize=fontsize)
 
-    plt.axhline(color='grey', linestyle='-')
+    #plt.axhline(color='grey', linestyle='-')
+
+    fig, axes = plt.subplots(2, 1, figsize=(13, 10), sharex=True, sharey=True)
+    
+    for idata, data in enumerate([old_results, all_results]):
+        errors = []
+        xlabel = []
+
+        for atom in atom_subset:
+            ers_basis = [
+                compute_avg_bste(data, basis, atom, state)
+                for state in range(n_states(atom))
+                if compute_avg_bste(data, basis, atom, state)
+            ]
+            errors.append(ers_basis)
+            xlabel.append(f"{atom}")
+
+        ax = axes[idata]
+
+        plots = ax.violinplot(
+            errors, vert=True, showmedians=True, showextrema=True, widths=1
+        )
+
+        # set colors
+        for pc, color in zip(plots['bodies'], violin_colors):
+            pc.set_facecolor(color)
+
+        # set line colors
+        for param in ['cmedians', 'cmins', 'cmaxes', 'cbars']:
+            plots[param].set_colors("k")
+
+        # labels
+        num_plots = [i + 1 for i in range(len(errors))]
+        ax.set_xticks(num_plots, labels=xlabel, fontsize=fontsize, rotation=90)
+        ax.set_ylabel(ylabel, fontsize=fontsize)
+        ax.tick_params(axis='y', labelsize=fontsize)
+        ax.axhline(color='grey', linestyle='-')
+
+        # optional titles to distinguish datasets
+        ax.set_title("Real basis" if idata == 0 else "Complex basis", fontsize=fontsize)
+
     plt.tight_layout()
-    plt.savefig(f'{fname}.png')
-
-#def zero_field_table(realdata, complexdata, basis, fname, label, caption):
-#    '''Print table of ground state energies at zero field'''
-
-    # open latex file
-#    texfile=open(f'tables/{fname}','w')
-#    texfile.write('\\begin{table}\n')
-#    texfile.write('\centering\n')
-#    texfile.write('\\small\n')
-#    texfile.write('\\begin{{tabular}}{{clll}}\n')
-#    texfile.write('\hline\n')
-
-    # header
-#    texfile.write(' & Real & Complex & Numerical \\\\ \n')
-#    texfile.write('\hline \hline\n')
-
-#    for at in atoms:
-#        texfile.write(f'{at}')
-#        texfile.write(f'{realdata} & {complexdata}')
+    plt.savefig(f'../paper/figures/{fname}.pdf')
 
 mapp={
     '-3': '\phi_+',
@@ -547,7 +574,7 @@ mapp={
 }
 
 colors = ['b','tab:orange','g','r','c','tab:pink','y','k','tab:brown']
-
+violin_colors = ['crimson', 'pink', 'purple', 'cornflowerblue', 'turquoise', 'navy', 'palegreen', 'forestgreen', 'gold', 'darkorange', 'brown', 'rosybrown', 'slategray', 'blue', 'magenta', 'palegoldenrod', 'darkslategray', 'yellowgreen']
 
 # load all results
 all_results = {'FEM' : load_fem_energy(atoms)}
@@ -592,6 +619,8 @@ subset = ['aug-cc-pVTZ', 'AHGBSP3-9']
 for at in atoms:
     table_mean_difference(subset, at, f'{at}-mean-diff.tex', f'{at}-mean-differ', f'MAEDs between GTO and FEM energies in m$E_h$ for {at} in the fully uncontracted {" and ".join(subset)} basis sets.')
 
+print_toc(atoms, "aug-cc-pVTZ", "aug-cc-pVTZ-violin", "Difference from FEM [$E_h$]")
+print_toc(atoms, "AHGBSP3-9", "AHGBSP3-9-violin", "$\\Delta E^\\mathrm{GTO}$ [$E_h$]")
 
 # LaTeX input file for the manuscript figures
 #for at in atoms:
@@ -638,24 +667,6 @@ for at in atoms:
 
 # generate SI text
 SItext = open('../paper/SItext.tex', 'w')
-
-for at in atoms:
-    SItext.write(f"\\input{{tables/{at}-mean-diff.tex}}\n")
-    SItext.write("\\begin{figure}\n")
-    SItext.write("\\centering\n")
-    SItext.write("\\begin{subfigure}[b]{.49\\textwidth}\n")
-    SItext.write(f"\\includegraphics[width=\\textwidth]{{figures/{at}-aug-cc-pVTZ.pdf}}\n")
-    SItext.write("\\caption{aug-cc-pVTZ}\n")
-    SItext.write(f"\\label{{fig:{at}-aug-cc-pVTZ}}\n")
-    SItext.write("\\end{subfigure}\n")
-    SItext.write("\\begin{subfigure}[b]{.49\\textwidth}\n")
-    SItext.write(f"\\includegraphics[width=\\textwidth]{{figures/{at}-AHGBSP3-9.pdf}}\n")
-    SItext.write("\\caption{AHGBSP3-9}\n")
-    SItext.write(f"\\label{{fig:{at}-AHGBSP3-9}}\n")
-    SItext.write("\\end{subfigure}\n")
-    SItext.write(f"\\caption{{Total energy of the {at} atom as a function of the magnetic field strength B in the aug-cc-pVTZ (left) and AHGBSP3-9 (right) basis sets}}\n")
-    SItext.write(f"\\label{{fig:{at}}}\n")
-    SItext.write("\\end{figure}\n")
     
 #SItext.write('\section{Convergence of Total Energies in FEM to the CBS Limit}')
 #SItext.write('We begin by showing that the complete basis set (CBS) limit is achieved with the employed finite element method (FEM) by plotting the convergence of the total energy at the field strength $B=0.60$ as a function of the angular truncation parameter $l_\\text{max}$.\n')
@@ -678,30 +689,30 @@ for at in atoms:
 #SItext.write('.\n\n')
 
 #SItext.write('\section{Difference of GTO Energies to FEM Values}')
-#SItext.write('\subsection{Mean Absolute Differences}')
-#SItext.write('Given these total energies, the differences $\Delta E^\\text{GTO} = E^\\text{GTO} - E^\\text{CBS}$ at each field strength for each state are obtained.\n')
-#SItext.write('First, the average absolute energy differences for the studied Gaussian basis sets in the fully uncontracted form are given in\n')
-#for iat, at in enumerate(atoms):
-#    if iat>0:
-#        SItext.write(', ')
-#    if iat == len(atoms)-1:
-#        SItext.write('and ')
-#    SItext.write(f'in \\cref{{tab:{at}-gto}} for {at}')
-#SItext.write('.\n\n')
+SItext.write('\\section{Mean Absolute Differences}')
+SItext.write("First, a summary of the mean average energy differences (MAEDs) for the aug-cc-pVTZ basis set, employing the real and complex spehrical harmonics, in the fully uncontracted form, is found in \\cref{fig:aug-cc-pVTZ-violin}.\n")
+SItext.write('The MAEDs for the aug-cc-pVTZ and AHGBSP3-9 basis sets, also employing the real and complex spherical harmonics, and in the fully uncontracted form are given in\n')
+for iat, at in enumerate(atoms):
+    if iat>0:
+        SItext.write(', ')
+    if iat == len(atoms)-1:
+        SItext.write('and ')
+    SItext.write(f'in \\cref{{tab:{at}-mean-differ}} for {at}')
+SItext.write('.\n\n')
 
 #SItext.write('Missing entries in the tables indicate either that the basis set for the given element does not exist on the Basis Set Exchange, e.g. aug-cc-pV5Z for Li in \\cref{tab:Li-gto}, or that the basis set is too small to describe the state in question, e.g. the state of the C atom with the occupied $\\varphi$ orbital in \\cref{tab:C-gto} which requires at least $f$ functions in the atomic basis.\n\n')
 
-#SItext.write('\subsection{Plots of FEM and GTO Total Energies}')
-#SItext.write('Next, we include plots of the differences for all the studied states of all the studied atoms in all the studied basis sets as a function of the field strength $B$.\n\n')
-#for iat, at in enumerate(atoms):
-#    SItext.write(f'The results for the {at} atom are given in\n')
-#    for ibasis, basis in enumerate(bases):
-#        if ibasis>0:
-#            SItext.write(', ')
-#        if ibasis == len(bases)-1:
-#            SItext.write('and ')
-#        SItext.write(f'in \\cref{{fig:{at}-{basis}}} for {basis}'.replace(',',''))
-#    SItext.write(', all basis sets being employed in the fully uncontracted form.\n\n')
+SItext.write('\\section{Plots of FEM and GTO Total Energies}')
+SItext.write('Next, we include plots of the differences for all the studied states of all the studied atoms in all the studied basis sets as a function of the field strength $B$.\n\n')
+for iat, at in enumerate(atoms):
+    SItext.write(f'The results for the {at} atom are given in\n')
+    for ibasis, basis in enumerate(["aug-cc-pVTZ", "AHGBSP3-9"]):#bases):
+        if ibasis>0:
+            SItext.write(', ')
+        if ibasis == len(bases)-1:
+            SItext.write('and ')
+        SItext.write(f'in \\cref{{fig:{at}-{basis}}} for {basis}'.replace(',',''))
+    SItext.write(', all basis sets being employed in the fully uncontracted form.\n\n')
 
 #SItext.write('\subsection{Tables of GTO Total Energies}')
 #SItext.write('Finally, we report the state specific total energies for all the studied states of all the studied atoms in all the studied Gaussian basis sets as a function of the field strength $B$, employing the real-orbital approximation.\n\n')
@@ -717,6 +728,29 @@ for at in atoms:
 
 
 # Input the corresponding tables and figures here
+SItext.write("\\begin{figure}\n")
+SItext.write("\\centering\n")
+SItext.write("\\includegraphics[width=\\linewidth]{figures/aug-cc-pVTZ-violin.pdf}\n")
+SItext.write("\\caption{MAEDs for ground states and low-lying configurations of the atoms $Z\leq18$ with the real (upper) and complex (lower) AHGBSP3-9 basis set.}\n")
+SItext.write("\\label{fig:aug-cc-pVTZ-violin}\n")
+SItext.write("\\end{figure}\n")
+for at in atoms:
+    SItext.write(f"\\input{{tables/{at}-mean-diff.tex}}\n")
+    SItext.write("\\begin{figure}\n")
+    SItext.write("\\centering\n")
+    SItext.write("\\begin{subfigure}[b]{.49\\textwidth}\n")
+    SItext.write(f"\\includegraphics[width=\\textwidth]{{figures/{at}-aug-cc-pVTZ.pdf}}\n")
+    SItext.write("\\caption{aug-cc-pVTZ}\n")
+    SItext.write(f"\\label{{fig:{at}-aug-cc-pVTZ}}\n")
+    SItext.write("\\end{subfigure}\n")
+    SItext.write("\\begin{subfigure}[b]{.49\\textwidth}\n")
+    SItext.write(f"\\includegraphics[width=\\textwidth]{{figures/{at}-AHGBSP3-9.pdf}}\n")
+    SItext.write("\\caption{AHGBSP3-9}\n")
+    SItext.write(f"\\label{{fig:{at}-AHGBSP3-9}}\n")
+    SItext.write("\\end{subfigure}\n")
+    SItext.write(f"\\caption{{Total energy of the {at} atom as a function of the magnetic field strength B in the aug-cc-pVTZ (left) and AHGBSP3-9 (right) basis sets}}\n")
+    SItext.write(f"\\label{{fig:{at}}}\n")
+    SItext.write("\\end{figure}\n")
 #SItext.write('\clearpage\n')
 #SItext.write('\input{figures/convergence-figures.tex}\n')
 #SItext.write('\clearpage\n')
