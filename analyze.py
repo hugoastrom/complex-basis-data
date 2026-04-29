@@ -619,7 +619,7 @@ subset = ['aug-cc-pVTZ', 'AHGBSP3-9']
 for at in atoms:
     table_mean_difference(subset, at, f'{at}-mean-diff.tex', f'{at}-mean-differ', f'MAEDs between GTO and FEM energies in m$E_h$ for {at} in the fully uncontracted {" and ".join(subset)} basis sets.')
 
-print_toc(atoms, "aug-cc-pVTZ", "aug-cc-pVTZ-violin", "Difference from FEM [$E_h$]")
+print_toc(atoms, "aug-cc-pVTZ", "aug-cc-pVTZ-violin", "$\\Delta E^\\mathrm{GTO}$ [$E_h$]")
 print_toc(atoms, "AHGBSP3-9", "AHGBSP3-9-violin", "$\\Delta E^\\mathrm{GTO}$ [$E_h$]")
 
 # LaTeX input file for the manuscript figures
