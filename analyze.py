@@ -341,23 +341,23 @@ def table_mean_difference(bases, atom, fname, label, caption):
     '''Generate LaTeX table with mean absolute energy differences between FEM and GTO for all states'''
     # open .tex file
     texfile=open('../paper/tables/'+fname,'w')
-    texfile.write('\\begin{table}\n')
+    texfile.write('\\begin{table*}\n')
     texfile.write('\centering\n')
     texfile.write('\\small\n')
-    #texfile.write('\\begin{{tabular}}{{ll{}}}\n'.format('|cc'*len(bases)))
-    texfile.write('\\begin{{tabular}}{{l{}}}\n'.format('|cc'*len(bases)))
+    #texfile.write('\\begin{{tabular}}{{l{}}}\n'.format('|ccc'*len(bases)))
+    texfile.write('\\begin{tabular}{l|S[table-format=4.3]S[table-format=4.3]S[table-format=4.3]|S[table-format=4.3]S[table-format=4.3]S[table-format=4.3]}\n')
     texfile.write('\hline\n')
 
     # header
     #texfile.write(' &')
     for basis in bases:
-        texfile.write(f" & \\multicolumn{{2}}{{|c}}{{{basis}}}")
+        texfile.write(f" & \\multicolumn{{3}}{{|c}}{{{basis}}}")
     texfile.write("\\\\\n")
     texfile.write("\\hline \\hline\n")
     #texfile.write(' & state')
     texfile.write('state')
     for _ in range(2):
-        texfile.write(' & $Y_{lm}$ & $Y_l^m$')
+        texfile.write(' & {Real} & {Complex} & {Difference}')
     texfile.write('\\\\ \n')
     texfile.write('\hline \hline\n')
 
@@ -367,19 +367,28 @@ def table_mean_difference(bases, atom, fname, label, caption):
         #texfile.write(f'{state} & \\color{{{color}}}{{{make_labels(atom)[state]}}}')
         texfile.write(f'\\color{{{color}}}{{{make_labels(atom)[state]}}}')
         for basis in bases:
-            for data in [old_results, all_results]:
-                diff_vec = compute_difference_vector(data, basis,atom,state)
-                if diff_vec is not None:
-                    diff = np.mean(np.absolute(diff_vec))
-                    color = 'blue' if difference_is_positive(data, atom, state) else 'red'
-                    texfile.write(' & \\tiny{{\color{{{}}}{{ $ {:.3f} $ }}}}'.format(color, 1000*diff))
+            diff_vec = compute_difference_vector(old_results, basis,atom,state)
+            if diff_vec is not None:
+                real_diff = np.mean(np.absolute(diff_vec))
+                if not difference_is_positive(old_results, atom, state):
+                    texfile.write(' & \\cellcolor{{pink}}{:.3f}'.format(1000*real_diff))
+                else:
+                    texfile.write(' & {:.3f}'.format(1000*real_diff))
+            diff_vec = compute_difference_vector(all_results, basis,atom,state)
+            if diff_vec is not None:
+                c_diff = np.mean(np.absolute(diff_vec))
+                if not difference_is_positive(all_results, atom, state):
+                    texfile.write(' & \\cellcolor{{pink}}{:.3f}'.format(1000*c_diff))
+                else:
+                    texfile.write(' & {:.3f}'.format(1000*c_diff))
+                texfile.write(" & {:.3f}".format(1000 * (c_diff - real_diff)))
         texfile.write('\\\\ \n')
 
     texfile.write('\hline\n')
     texfile.write('\end{tabular}\n')
     texfile.write(f'\caption{{{caption}}}\n')
     texfile.write(f'\label{{tab:{label}}}\n')
-    texfile.write('\end{table}\n')
+    texfile.write('\end{table*}\n')
     texfile.close()
 
 def find_min_max(at):
@@ -491,8 +500,8 @@ def print_fig(at, basis, fname, xlabel, ylabel, energy_plot):
     plt.close()
 
 
-def print_toc(atom_subset, basis, fname, ylabel):
-    '''Print TOC violin plot'''
+def violin_plot(atom_subset, basis, fname, ylabel):
+    '''Print violin plot'''
 
     fontsize=46
     #errors = []
@@ -563,6 +572,39 @@ def print_toc(atom_subset, basis, fname, ylabel):
     plt.tight_layout()
     plt.savefig(f'../paper/figures/{fname}.pdf')
 
+def toc_graphic(r0, xlim, ylim, arrow1_beg, arrow1_end, arrow2_beg, arrow2_end, text1, text2, t1_loc, t2_loc, figparams):
+    '''generate TOC graphic'''
+
+    fig=plt.figure()
+    fig.set_figheight(figparams['height'])
+    fig.set_figwidth(figparams['width'])
+    figsize=figparams['size']
+    linewidth=figparams['linewidth']
+    fontsize=figparams['fontsize']
+
+
+    ax = fig.add_subplot()
+
+    fields = ['{:.2f}'.format(field) for field in np.arange(0.00, 0.70, 0.10)]
+
+    real_orb = [old_results["AHGBSP3-9"]["O"][3][field] for field in fields]
+    cplx_orb = [all_results["AHGBSP3-9"]["O"][3][field] for field in fields]
+
+    ax.plot(real_orb, [float(field) for field in fields], color="m", linewidth=linewidth)
+    ax.plot(cplx_orb, [float(field) for field in fields], color="orange", linewidth=linewidth)
+
+    ax.axis([xlim[0], xlim[1], ylim[0], ylim[1]])
+    plt.xticks([], [])
+    plt.yticks([], [])
+    ax.annotate(text='', xy=(arrow1_end[0], arrow1_end[1]), xytext=(arrow1_beg[0], arrow1_beg[1]), fontsize=fontsize, arrowprops=dict(arrowstyle='->'))
+    ax.annotate(text='', xy=(arrow2_end[0], arrow2_end[1]), xytext=(arrow2_beg[0], arrow2_beg[1]), fontsize=fontsize, arrowprops=dict(arrowstyle='->'))
+    plt.text(t1_loc[0], t1_loc[1], text1, dict(size=fontsize))
+    plt.text(t2_loc[0], t2_loc[1], text2, dict(size=fontsize))
+    fig.tight_layout(pad=0.0001)
+    plt.savefig("../paper/figures/toc.eps")
+    plt.savefig("../paper/figures/toc.svg")
+    plt.close()
+    
 mapp={
     '-3': '\phi_+',
     '-2': '\delta_+',
@@ -619,8 +661,8 @@ subset = ['aug-cc-pVTZ', 'AHGBSP3-9']
 for at in atoms:
     table_mean_difference(subset, at, f'{at}-mean-diff.tex', f'{at}-mean-differ', f'MAEDs between GTO and FEM energies in m$E_h$ for {at} in the fully uncontracted {" and ".join(subset)} basis sets.')
 
-print_toc(atoms, "aug-cc-pVTZ", "aug-cc-pVTZ-violin", "$\\Delta E^\\mathrm{GTO}$ [$E_h$]")
-print_toc(atoms, "AHGBSP3-9", "AHGBSP3-9-violin", "$\\Delta E^\\mathrm{GTO}$ [$E_h$]")
+violin_plot(atoms, "aug-cc-pVTZ", "aug-cc-pVTZ-violin", "$\\Delta E^\\mathrm{GTO}$ [$E_h$]")
+violin_plot(atoms, "AHGBSP3-9", "AHGBSP3-9-violin", "$\\Delta E^\\mathrm{GTO}$ [$E_h$]")
 
 # LaTeX input file for the manuscript figures
 #for at in atoms:
@@ -775,4 +817,23 @@ for at in atoms:
 
 # print TOC figure
 #if do_figures:
-#    print_toc(['He', 'F', 'Si', 'Ar'], ['aug-cc-pVTZ', 'AHGBSP3-9'], 'figures/toc', 'Difference from FEM [$E_h$]')
+#    violin_plot(['He', 'F', 'Si', 'Ar'], ['aug-cc-pVTZ', 'AHGBSP3-9'], 'figures/toc', 'Difference from FEM [$E_h$]')
+figparams = {'height': 1.75,
+             'width': 3.25,
+             'size': (3.25,1.75),
+             'fontsize': 8,
+             'linewidth': 0.7
+             }
+
+ylim = [-3.5,6]
+xlim = [0,3]
+r0 = 1.0
+text1 = 'Tighter potential'
+t1_loc = [1.75, 1.0]
+text2 = 'More localized orbital'
+t2_loc = [0.65, -1.75]
+arrow1_beg = (1.82, 1.5)
+arrow1_end = (1.1, 4.0)
+arrow2_beg = (0.33, -0.75)
+arrow2_end = (0.33, -3)
+toc_graphic(r0, xlim, ylim, arrow1_beg, arrow1_end, arrow2_beg, arrow2_end, text1, text2, t1_loc, t2_loc, figparams)
