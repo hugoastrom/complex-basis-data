@@ -31,6 +31,20 @@ hartree_to_kcal_per_mol = 627.503
 def is_converged(fname):
     '''Check if calculation is converged'''
 
+    if not ("sap" in fname or "guess" in fname):
+        oldfname = f"../../magfield-basis/{fname}".replace("sap_","").replace("erkale_guess_","").replace("stdout","log")
+        params = fname.split("/")
+        atom = params[1]
+        field = params[2]
+        basis, state = params[3].replace("sap_","").replace("erkale_guess_","").replace(".stdout","").split("_")
+        state = int(state)
+        with open(oldfname) as f:
+            for line in f:
+                if "Energy change" in line:
+                    e_change = float(line.split()[-1])
+                    if e_change > 0.0:
+                        print("Saddle point found previously for state %i of %s at B=%s with the %s basis" %(state, atom, field, basis))
+    
     try:
         f = open(fname)
     except:
@@ -42,23 +56,7 @@ def is_converged(fname):
             return None
         if 'Converged to energy' in line:
             return True
-    oldfname = f"../../magfield-basis/{fname}".replace("sap_","").replace("stdout","log")
-    params = fname.split("/")
-    atom = params[1]
-    field = params[2]
-    try:
-        basis, state = params[3].split("_")
-    except:
-        _, basis, state = params[3].split("_")
-    state = int(state.replace(".stdout",""))
-    with open(oldfname) as f:
-        for line in f:
-            if "Energy change" in line:
-                e_change = float(line.split()[-1])
-                if e_change >= 0.0:
-                    print("    Saddle point found for state %i of %s at B=%s with the %s basis" %(state, atom, field, basis))
-                    return False
-    print("Energy not converged for state %i of %s at B=%s with the %s basis" %(state, atom, field, basis))
+
     return False
 
 
@@ -701,8 +699,14 @@ for at in atoms:
 SItext = open('../paper/SItext.tex', 'w')
 
 SItext.write('\\section{Mean Absolute Differences}')
-SItext.write("First, a summary of the mean average energy differences (MAEDs) for the aug-cc-pVTZ basis set, employing the real and complex spehrical harmonics, in the fully uncontracted form, is found in \\cref{fig:aug-cc-pVTZ-violin}.\n")
-
+SItext.write('The MAEDs for the aug-cc-pVTZ and AHGBSP3-9 basis sets, also employing the real and complex spherical harmonics, and in the fully uncontracted form are given \n')
+for iat, at in enumerate(["H", "He", "Li", "F", "Ne", "Na"]):
+    if iat>0:
+        SItext.write(', ')
+    if iat == len(atoms)-1:
+        SItext.write('and ')
+    SItext.write(f'in \\cref{{tab:{at}-mean-differ}} for {at}')
+SItext.write('.\n\n')
 SItext.write('\\section{Plots of FEM and GTO Total Energies}')
 SItext.write('Next, we include plots of the differences for all the studied states of all the studied atoms in all the studied basis sets as a function of the field strength $B$.\n\n')
 for iat, at in enumerate(atoms):
@@ -716,12 +720,8 @@ for iat, at in enumerate(atoms):
     SItext.write(', all basis sets being employed in the fully uncontracted form.\n\n')
 
 # Input the corresponding tables and figures here
-SItext.write("\\begin{figure}\n")
-SItext.write("\\centering\n")
-SItext.write("\\includegraphics[width=\\linewidth]{figures/aug-cc-pVTZ-violin.pdf}\n")
-SItext.write("\\caption{MAEDs for ground states and low-lying configurations of the atoms $Z\leq18$ with the real (upper) and complex (lower) AHGBSP3-9 basis set.}\n")
-SItext.write("\\label{fig:aug-cc-pVTZ-violin}\n")
-SItext.write("\\end{figure}\n")
+for iat, at in enumerate(["H", "He", "Li", "F", "Ne", "Na"]):
+    SItext.write(f"\\input{{tables/{at}-mean-diff.tex}}\n")
 for at in atoms:
     #SItext.write(f"\\input{{tables/{at}-mean-diff.tex}}\n")
     SItext.write("\\begin{figure}\n")
