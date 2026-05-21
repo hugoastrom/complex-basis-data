@@ -2,7 +2,7 @@
 
 
 p=$PWD
-for at in Al Ar B Be C Cl F H He Li Mg N Na Ne O P S Si; do
+for at in H He Li Be B C N O F Ne Na Mg Al Si P S Cl Ar; do
     if [[ ! -d $p/$at ]]; then
 	mkdir -p $p/$at
     fi
@@ -12,7 +12,7 @@ for at in Al Ar B Be C Cl F H He Li Mg N Na Ne O P S Si; do
 	cat > submit_${calc}.in <<EOF
 #!/bin/bash
 
-#SBATCH --job-name=${at}-${calc}-sap
+#SBATCH --job-name=${at}-${calc}
 #SBATCH -e out_%j
 #SBATCH -o out_%j
 #SBATCH --mem-per-cpu=500
@@ -20,7 +20,8 @@ for at in Al Ar B Be C Cl F H He Li Mg N Na Ne O P S Si; do
 #SBATCH -n 8
 #SBATCH -p normal
 
-../makeinp_sap_${calc}.sh
+python3 ../read_old_orbs.py
+#../makeinp_sap_${calc}.sh
 #../check_rmax.sh
 #../makeinp_real_gto.sh
 

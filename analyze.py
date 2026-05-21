@@ -34,7 +34,7 @@ def is_converged(fname):
     try:
         f = open(fname)
     except:
-        raise FileNotFoundError(f'Can not open file output/{at}/{field}/{basis}_{state}.stdout')
+        return False
     for line in f:
         if "Could not find basis for element" in line:
             return None
@@ -75,29 +75,19 @@ def load_gto_energy(basis, atoms):
             old_fields = {}
             for field in np.arange(0.00, 0.62, 0.02):
                 field = '{:.2f}'.format(field)
-                core_energy = None
-                fname = f'output/{at}/{field}/{basis}_{state}.stdout'
-                if is_converged(fname):
-                    f = open(fname)
-                    for line in f:
-                        if 'Converged to energy' in line:
-                            line_split = line.split()
-                            core_energy = float(line_split[-1].replace("!",""))
-                            break
+                energies = {"core": None, "sap": None, "erkale_guess": None}
+                for ifile, fname in enumerate([f'output/{at}/{field}/{basis}_{state}.stdout', f'output/{at}/{field}/sap_{basis}_{state}.stdout', f'output/{at}/{field}/erkale_guess_{basis}_{state}.stdout']):
+                    if is_converged(fname):
+                        f = open(fname)
+                        for line in f:
+                            if 'Converged to energy' in line:
+                                line_split = line.split()
+                                energies[list(energies.keys())[ifile]] = float(line_split[-1].replace("!",""))
+                                break
 
-                sap_energy = None
-                fname = f'output/{at}/{field}/sap_{basis}_{state}.stdout'
-                if is_converged(fname):
-                    f = open(fname)
-                    for line in f:
-                        if 'Converged to energy' in line:
-                            line_split = line.split()
-                            sap_energy = float(line_split[-1].replace("!",""))
-                            break
-                try:
-                    energy = min(core_energy, sap_energy)
-                except:
-                    energy = core_energy if sap_energy == None else sap_energy
+
+                sorted_energies = sorted(energies.items(), key=lambda x: (x[1] is None, x[1]))
+                energy = sorted_energies[0][1]
 
                 old_energy = None
                 try:
@@ -709,40 +699,9 @@ for at in atoms:
 
 # generate SI text
 SItext = open('../paper/SItext.tex', 'w')
-    
-#SItext.write('\section{Convergence of Total Energies in FEM to the CBS Limit}')
-#SItext.write('We begin by showing that the complete basis set (CBS) limit is achieved with the employed finite element method (FEM) by plotting the convergence of the total energy at the field strength $B=0.60$ as a function of the angular truncation parameter $l_\\text{max}$.\n')
-#SItext.write('The energy difference $\\Delta E = E(l_\\text{max}) - E(l_\\text{max}-2)$ is shown\n')
-#for iat, at in enumerate(atoms):
-#    if iat>0:
-#        SItext.write(', ')
-#    if iat == len(atoms)-1:
-#        SItext.write('and ')
-#    SItext.write(f'in \\cref{{fig:{at}}} for {at}')
-#SItext.write('.\n\n')
 
-#SItext.write('The resulting CBS total energies of all atoms, determined with FEM, are given in\n')
-#for iat, at in enumerate(atoms):
-#    if iat>0:
-#        SItext.write(', ')
-#    if iat == len(atoms)-1:
-#        SItext.write('and ')
-#    SItext.write(f'in \\cref{{tab:{at}-fem}} for {at}')
-#SItext.write('.\n\n')
-
-#SItext.write('\section{Difference of GTO Energies to FEM Values}')
 SItext.write('\\section{Mean Absolute Differences}')
 SItext.write("First, a summary of the mean average energy differences (MAEDs) for the aug-cc-pVTZ basis set, employing the real and complex spehrical harmonics, in the fully uncontracted form, is found in \\cref{fig:aug-cc-pVTZ-violin}.\n")
-SItext.write('The MAEDs for the aug-cc-pVTZ and AHGBSP3-9 basis sets, also employing the real and complex spherical harmonics, and in the fully uncontracted form are given in\n')
-for iat, at in enumerate(atoms):
-    if iat>0:
-        SItext.write(', ')
-    if iat == len(atoms)-1:
-        SItext.write('and ')
-    SItext.write(f'in \\cref{{tab:{at}-mean-differ}} for {at}')
-SItext.write('.\n\n')
-
-#SItext.write('Missing entries in the tables indicate either that the basis set for the given element does not exist on the Basis Set Exchange, e.g. aug-cc-pV5Z for Li in \\cref{tab:Li-gto}, or that the basis set is too small to describe the state in question, e.g. the state of the C atom with the occupied $\\varphi$ orbital in \\cref{tab:C-gto} which requires at least $f$ functions in the atomic basis.\n\n')
 
 SItext.write('\\section{Plots of FEM and GTO Total Energies}')
 SItext.write('Next, we include plots of the differences for all the studied states of all the studied atoms in all the studied basis sets as a function of the field strength $B$.\n\n')
@@ -756,19 +715,6 @@ for iat, at in enumerate(atoms):
         SItext.write(f'in \\cref{{fig:{at}-{basis}}} for {basis}'.replace(',',''))
     SItext.write(', all basis sets being employed in the fully uncontracted form.\n\n')
 
-#SItext.write('\subsection{Tables of GTO Total Energies}')
-#SItext.write('Finally, we report the state specific total energies for all the studied states of all the studied atoms in all the studied Gaussian basis sets as a function of the field strength $B$, employing the real-orbital approximation.\n\n')
-#for at in atoms:
-#    SItext.write(f'For {at}, the results are given in\n')
-#    for ibasis, basis in enumerate(bases):
-#        if ibasis>0:
-#            SItext.write(', ')
-#        if ibasis == len(bases)-1:
-#            SItext.write('and ')
-#        SItext.write(f'in \\cref{{tab:{at}-{basis}}} for {basis}'.replace(',',''))
-#    SItext.write(', all basis sets being employed in the fully uncontracted form.\n\n')
-
-
 # Input the corresponding tables and figures here
 SItext.write("\\begin{figure}\n")
 SItext.write("\\centering\n")
@@ -777,7 +723,7 @@ SItext.write("\\caption{MAEDs for ground states and low-lying configurations of 
 SItext.write("\\label{fig:aug-cc-pVTZ-violin}\n")
 SItext.write("\\end{figure}\n")
 for at in atoms:
-    SItext.write(f"\\input{{tables/{at}-mean-diff.tex}}\n")
+    #SItext.write(f"\\input{{tables/{at}-mean-diff.tex}}\n")
     SItext.write("\\begin{figure}\n")
     SItext.write("\\centering\n")
     SItext.write("\\begin{subfigure}[b]{.49\\textwidth}\n")
@@ -793,31 +739,7 @@ for at in atoms:
     SItext.write(f"\\caption{{Total energy of the {at} atom as a function of the magnetic field strength B in the aug-cc-pVTZ (left) and AHGBSP3-9 (right) basis sets}}\n")
     SItext.write(f"\\label{{fig:{at}}}\n")
     SItext.write("\\end{figure}\n")
-#SItext.write('\clearpage\n')
-#SItext.write('\input{figures/convergence-figures.tex}\n')
-#SItext.write('\clearpage\n')
-#for at in atoms:
-#    SItext.write(f'\\input{{tables/{at}_fem_tab.tex}}\n')
-#SItext.write('\n')
 
-#SItext.write('\clearpage\n')
-#for at in atoms:
-#    SItext.write(f'\\input{{tables/{at}_gto_tab.tex}}\n')
-#SItext.write('\clearpage\n')
-#SItext.write('\input{figures/figures.tex}\n')
-#SItext.write('\n')
-
-#SItext.write('\clearpage\n')
-#for at in atoms:
-#    for basis in bases:
-#        SItext.write(f'\\input{{tables/{at}_{basis}_tab}}\n')
-#    SItext.write('\clearpage')
-#SItext.write('\n')
-#SItext.close()
-
-# print TOC figure
-#if do_figures:
-#    violin_plot(['He', 'F', 'Si', 'Ar'], ['aug-cc-pVTZ', 'AHGBSP3-9'], 'figures/toc', 'Difference from FEM [$E_h$]')
 figparams = {'height': 1.75,
              'width': 3.25,
              'size': (3.25,1.75),
