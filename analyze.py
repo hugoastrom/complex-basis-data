@@ -698,26 +698,24 @@ for at in atoms:
 # generate SI text
 SItext = open('../paper/SItext.tex', 'w')
 
+tab_atoms = ["H", "He", "Li", "F", "Ne", "Na"]
 SItext.write('\\section{Mean Absolute Differences}')
-SItext.write('The MAEDs for the aug-cc-pVTZ and AHGBSP3-9 basis sets, also employing the real and complex spherical harmonics, and in the fully uncontracted form are given \n')
-for iat, at in enumerate(["H", "He", "Li", "F", "Ne", "Na"]):
+SItext.write('The mean absolute energy differences (MAEDs) for the aug-cc-pVTZ and AHGBSP3-9 basis sets, employing the real and complex spherical harmonics, and in the fully uncontracted form are given \n')
+for iat, at in enumerate(tab_atoms):
     if iat>0:
         SItext.write(', ')
-    if iat == len(atoms)-1:
+    if iat == len(tab_atoms)-1:
         SItext.write('and ')
     SItext.write(f'in \\cref{{tab:{at}-mean-differ}} for {at}')
 SItext.write('.\n\n')
 SItext.write('\\section{Plots of FEM and GTO Total Energies}')
-SItext.write('Next, we include plots of the differences for all the studied states of all the studied atoms in all the studied basis sets as a function of the field strength $B$.\n\n')
+SItext.write('Plots of the energies for all the studied states of all the studied atoms in both basis sets as a function of the field strength $B$ are given\n')
 for iat, at in enumerate(atoms):
-    SItext.write(f'The results for the {at} atom are given in\n')
-    for ibasis, basis in enumerate(["aug-cc-pVTZ", "AHGBSP3-9"]):#bases):
-        if ibasis>0:
-            SItext.write(', ')
-        if ibasis == len(bases)-1:
-            SItext.write('and ')
-        SItext.write(f'in \\cref{{fig:{at}-{basis}}} for {basis}'.replace(',',''))
-    SItext.write(', all basis sets being employed in the fully uncontracted form.\n\n')
+    if iat>0:
+        SItext.write(", ")
+    if iat == len(atoms) - 1:
+        SItext.write("and ")
+    SItext.write(f'in \\cref{{fig:{at}}} for the {at} atom'.replace(',',''))
 
 # Input the corresponding tables and figures here
 for iat, at in enumerate(["H", "He", "Li", "F", "Ne", "Na"]):
