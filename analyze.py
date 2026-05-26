@@ -488,7 +488,7 @@ def print_fig(at, basis, fname, xlabel, ylabel, energy_plot):
     plt.close()
 
 
-def violin_plot(atom_subset, basis, fname, xlabel):
+def toc(atom_subset, basis):
     '''Print violin plot'''
 
     fontsize=5
@@ -550,54 +550,9 @@ def violin_plot(atom_subset, basis, fname, xlabel):
         #ax.set_title("Real basis" if idata == 0 else "Complex basis", fontsize=fontsize)
 
     plt.tight_layout()
-    plt.savefig(f'../paper/figures/{fname}.pdf')
-
-def toc_graphic(xlim, ylim, arrow1_beg, arrow1_end, arrow2_beg, arrow2_end, arrow3_beg, arrow3_end, t1_loc, t2_loc, figparams):
-    '''generate TOC graphic'''
-
-    fig=plt.figure()
-    fig.set_figheight(figparams['height'])
-    fig.set_figwidth(figparams['width'])
-    figsize=figparams['size']
-    linewidth=figparams['linewidth']
-    fontsize=figparams['fontsize']
-
-    ax = fig.add_subplot()
-    
-    yleft = np.arange(ylim[0] + 0.2, ylim[1] - 0.1, 0.01)
-    xleft = [arrow1_end[0] + 0.05 for _ in range(len(yleft))]
-    xright = [arrow2_beg[0] - 0.2 for _ in range(len(yleft))]
-    xtop = np.arange(xleft[0], xright[0], 0.001)
-    ytop = [yleft[-1] for _ in range(len(xtop))]
-    ybottom = [yleft[0] for _ in range(len(xtop))]
-
-    color = "pink"
-    plt.plot(xleft, yleft, color, xright, yleft, color, xtop, ytop, color, xtop, ybottom, color)
-
-    xmleft = np.arange(xlim[0] + 0.1, xlim[0] + 0.9, 0.1)
-    xmright = np.arange(xlim[1] - 0.9, xlim[1] - 0.1, 0.1)
-    ymtop = [ylim[1] - 0.5 for _ in range(len(xmleft))]
-    ymbottom = [ylim[0] + 0.5 for _ in range(len(xmleft))] 
-
-    color = "red"
-    plt.plot(xmleft, ymtop, color, xmleft, ymbottom, color, xmright, ymtop, color, xmright, ymbottom, color)
-    
-    ax.axis([xlim[0], xlim[1], ylim[0], ylim[1]])
-    plt.xticks([], [])
-    plt.yticks([], [])
-    ax.annotate(text='$\\psi$', xy=(arrow1_end[0], arrow1_end[1]), xytext=(arrow1_beg[0], arrow1_beg[1]), fontsize=1.5*fontsize, arrowprops=dict(arrowstyle='->'))
-    ax.annotate(text='$\\tilde{\\psi}_+$', xy=(arrow2_end[0], arrow2_end[1]), xytext=(arrow2_beg[0], arrow2_beg[1]), fontsize=1.5*fontsize, arrowprops=dict(arrowstyle='->'))
-    ax.annotate(text='$\\tilde{\\psi}_-$', xy=(arrow3_end[0], arrow3_end[1]), xytext=(arrow3_beg[0], arrow3_beg[1]), fontsize=1.5*fontsize, arrowprops=dict(arrowstyle='->'))
-    plt.text(xlim[0] + 0.3, ylim[1] - 0.3, "$\\langle L_z\\rangle$", dict(size=fontsize))
-    plt.text(xlim[0] + 0.3, ylim[0] + 0.7, "$-\\langle L_z\\rangle$", dict(size=fontsize))
-    plt.text(xlim[1] - 0.8, ylim[1] - 0.3, "$\\langle L_z\\rangle$", dict(size=fontsize))
-    plt.text(xlim[1] - 0.8, ylim[0] + 0.7, "$-\\langle L_z\\rangle$", dict(size=fontsize))
-    plt.text((xlim[1] - xlim[0]) / 2 - 0.35, (ylim[1] - ylim[0]) / 2, "SCF", dict(size=fontsize))
-
-    fig.tight_layout(pad=0.0001)
-    plt.savefig("../paper/figures/toc.eps")
-    plt.savefig("../paper/figures/toc.svg")
-    plt.close()
+    #plt.savefig('../paper/figures/toc.eps')
+    #plt.savefig('../paper/figures/toc.svg')
+    plt.savefig('../paper/figures/toc.pdf')
     
 mapp={
     '-3': '\phi_+',
@@ -655,8 +610,7 @@ subset = ['aug-cc-pVTZ', 'AHGBSP3-9']
 for at in atoms:
     table_mean_difference(subset, at, f'{at}-mean-diff.tex', f'{at}-mean-differ', f'MAEDs between GTO and FEM energies in m$E_h$ for {at} in the fully uncontracted {" and ".join(subset)} basis sets.')
 
-violin_plot(atoms, "aug-cc-pVTZ", "aug-cc-pVTZ-violin", "$\\Delta E^\\mathrm{GTO}$ [$E_h$]")
-violin_plot(atoms, "AHGBSP3-9", "AHGBSP3-9-violin", "$\\Delta E^\\mathrm{GTO}$ [$E_h$]")
+toc(atoms, "AHGBSP3-9")
 
 # LaTeX input file for the manuscript figures
 #for at in atoms:
@@ -743,22 +697,3 @@ for at in atoms:
     SItext.write(f"\\caption{{Total energy of the {at} atom as a function of the magnetic field strength B in the aug-cc-pVTZ (left) and AHGBSP3-9 (right) basis sets}}\n")
     SItext.write(f"\\label{{fig:{at}}}\n")
     SItext.write("\\end{figure}\n")
-
-figparams = {'height': 1.75,
-             'width': 3.25,
-             'size': (3.25,1.75),
-             'fontsize': 10,
-             'linewidth': 0.7
-             }
-
-ylim = [0,4]
-xlim = [0,4]
-t1_loc = [0.2, 2.0]
-t2_loc = [0.65, -1.75]
-arrow1_beg = (0.6, 2.0)
-arrow1_end = (1.3, 2.1)
-arrow2_beg = (2.5, 2.5)
-arrow2_end = (3.3, 3.4)
-arrow3_beg = (2.5, 1.5)
-arrow3_end = (3.3, 0.9)
-toc_graphic(xlim, ylim, arrow1_beg, arrow1_end, arrow2_beg, arrow2_end, arrow3_beg, arrow3_end, t1_loc, t2_loc, figparams)
