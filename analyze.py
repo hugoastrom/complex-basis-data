@@ -38,12 +38,12 @@ def is_converged(fname):
         field = params[2]
         basis, state = params[3].replace("sap_","").replace("erkale_guess_","").replace(".stdout","").split("_")
         state = int(state)
-        with open(oldfname) as f:
-            for line in f:
-                if "Energy change" in line:
-                    e_change = float(line.split()[-1])
-                    if e_change > 0.0:
-                        print("Saddle point found previously for state %i of %s at B=%s with the %s basis" %(state, atom, field, basis))
+        #with open(oldfname) as f:
+        #    for line in f:
+        #        if "Energy change" in line:
+        #            e_change = float(line.split()[-1])
+        #            if e_change > 0.0:
+                        #print("Saddle point found previously for state %i of %s at B=%s with the %s basis" %(state, atom, field, basis))
     
     try:
         f = open(fname)
@@ -488,79 +488,71 @@ def print_fig(at, basis, fname, xlabel, ylabel, energy_plot):
     plt.close()
 
 
-def violin_plot(atom_subset, basis, fname, ylabel):
+def violin_plot(atom_subset, basis, fname, xlabel):
     '''Print violin plot'''
 
-    fontsize=46
-    #errors = []
-    #xlabel = []
-    #for atom in atom_subset:
-    #    for idata, data in enumerate([old_results, all_results]):
-    #        ers_basis = [ compute_avg_bste(data,basis,atom,state) for state in range(n_states(atom)) if compute_avg_bste(data,basis,atom,state) ]
-    #        errors.append(ers_basis)
-    #        xlabel.append(f'{atom}') if idata == 0 else xlabel.append("")
+    fontsize=5
 
-    #fig, ax = plt.subplots(figsize=(13, 7))
-    #plots = ax.violinplot(errors, vert=True, showmedians=True, showextrema=True, widths=1)
+    fig, axes = plt.subplots(1, 2, figsize=(3.25,1.75), sharex=True, sharey=True)
+    #fig, axes = plt.subplots(2, 1, figsize=(13, 10), sharex=True, sharey=True)
 
-    # set colors of violin patches
-    #for pc, color in zip(plots['bodies'], [c for c in violin_colors for i in range(2)]):
-    #    pc.set_facecolor(color)
+    #fig.subplots_adjust(wspace=0.2)
 
-    # set color of median line
-    #for param in ['cmedians', 'cmins', 'cmaxes', 'cbars']:
-    #    plots[param].set_colors("k")
+    left = axes[0].get_position()
+    right = axes[1].get_position()
 
-    # set labels
-    #num_plots = [ i+1 for i in range(len(errors)) ]
-    #ax.set_xticks(num_plots, labels=xlabel, fontsize=fontsize, rotation=45)
-    #ax.set_ylabel(ylabel, fontsize=fontsize)
+    xmid = (left.x1 + right.x0) / 2
+    ymid = (left.y0 + left.y1) / 2
 
-    #plt.axhline(color='grey', linestyle='-')
-
-    fig, axes = plt.subplots(2, 1, figsize=(13, 10), sharex=True, sharey=True)
+    #fig.text(xmid, ymid, "$C^\mathrm{complex}=DC^\mathrm{real}$", ha='center', va='center', fontsize=10)
+    fig.text(xmid - 0.2, ymid + 0.05, "$C^\mathrm{real}$", ha='center', va='center', fontsize=10)
+    fig.text(xmid + 0.25, ymid + 0.05, "$C^\mathrm{complex}$ \\\\ $=DC^\mathrm{real}$", ha='center', va='center', fontsize=10)
     
+    n = len(atom_subset)
     for idata, data in enumerate([old_results, all_results]):
-        errors = []
-        xlabel = []
 
-        for atom in atom_subset:
+        errors = []
+        ylabel = []
+
+        for atom in [atom_subset[n - 1 - i] for i in range(n)]:
             ers_basis = [
-                compute_avg_bste(data, basis, atom, state)
+                10e3 * compute_avg_bste(data, basis, atom, state)
                 for state in range(n_states(atom))
                 if compute_avg_bste(data, basis, atom, state)
             ]
             errors.append(ers_basis)
-            xlabel.append(f"{atom}")
-
+            ylabel.append(f"{atom}")
+                
         ax = axes[idata]
 
-        plots = ax.violinplot(
-            errors, vert=True, showmedians=True, showextrema=True, widths=1
-        )
-
+        plots = ax.violinplot(errors, vert=False, showmedians=False, showextrema=True, widths=1)
+        
         # set colors
         for pc, color in zip(plots['bodies'], violin_colors):
             pc.set_facecolor(color)
 
         # set line colors
-        for param in ['cmedians', 'cmins', 'cmaxes', 'cbars']:
+        #for param in ['cmedians', 'cmins', 'cmaxes', 'cbars']:
+        for param in ['cmins', 'cmaxes', 'cbars']:
+            plots[param].set_linewidth(0.5)
             plots[param].set_colors("k")
 
         # labels
         num_plots = [i + 1 for i in range(len(errors))]
-        ax.set_xticks(num_plots, labels=xlabel, fontsize=fontsize, rotation=90)
-        ax.set_ylabel(ylabel, fontsize=fontsize)
+        ax.set_yticks(num_plots, labels=ylabel, fontsize=fontsize, rotation=0)
+        #ax.set_xlabel(xlabel, fontsize=fontsize)
+        ax.set_xlabel("Difference from CBS [m$E_h$]", fontsize=fontsize)
         ax.tick_params(axis='y', labelsize=fontsize)
+        ax.tick_params(axis='x', labelsize=fontsize)
         ax.axhline(color='grey', linestyle='-')
 
         # optional titles to distinguish datasets
-        ax.set_title("Real basis" if idata == 0 else "Complex basis", fontsize=fontsize)
+        #ax.set_title("Real basis" if idata == 0 else "Complex basis", fontsize=fontsize)
 
     plt.tight_layout()
     plt.savefig(f'../paper/figures/{fname}.pdf')
 
-def toc_graphic(r0, xlim, ylim, arrow1_beg, arrow1_end, arrow2_beg, arrow2_end, text1, text2, t1_loc, t2_loc, figparams):
+def toc_graphic(xlim, ylim, arrow1_beg, arrow1_end, arrow2_beg, arrow2_end, arrow3_beg, arrow3_end, t1_loc, t2_loc, figparams):
     '''generate TOC graphic'''
 
     fig=plt.figure()
@@ -570,24 +562,38 @@ def toc_graphic(r0, xlim, ylim, arrow1_beg, arrow1_end, arrow2_beg, arrow2_end, 
     linewidth=figparams['linewidth']
     fontsize=figparams['fontsize']
 
-
     ax = fig.add_subplot()
+    
+    yleft = np.arange(ylim[0] + 0.2, ylim[1] - 0.1, 0.01)
+    xleft = [arrow1_end[0] + 0.05 for _ in range(len(yleft))]
+    xright = [arrow2_beg[0] - 0.2 for _ in range(len(yleft))]
+    xtop = np.arange(xleft[0], xright[0], 0.001)
+    ytop = [yleft[-1] for _ in range(len(xtop))]
+    ybottom = [yleft[0] for _ in range(len(xtop))]
 
-    fields = ['{:.2f}'.format(field) for field in np.arange(0.00, 0.70, 0.10)]
+    color = "pink"
+    plt.plot(xleft, yleft, color, xright, yleft, color, xtop, ytop, color, xtop, ybottom, color)
 
-    real_orb = [old_results["AHGBSP3-9"]["O"][3][field] for field in fields]
-    cplx_orb = [all_results["AHGBSP3-9"]["O"][3][field] for field in fields]
+    xmleft = np.arange(xlim[0] + 0.1, xlim[0] + 0.9, 0.1)
+    xmright = np.arange(xlim[1] - 0.9, xlim[1] - 0.1, 0.1)
+    ymtop = [ylim[1] - 0.5 for _ in range(len(xmleft))]
+    ymbottom = [ylim[0] + 0.5 for _ in range(len(xmleft))] 
 
-    ax.plot(real_orb, [float(field) for field in fields], color="m", linewidth=linewidth)
-    ax.plot(cplx_orb, [float(field) for field in fields], color="orange", linewidth=linewidth)
-
+    color = "red"
+    plt.plot(xmleft, ymtop, color, xmleft, ymbottom, color, xmright, ymtop, color, xmright, ymbottom, color)
+    
     ax.axis([xlim[0], xlim[1], ylim[0], ylim[1]])
     plt.xticks([], [])
     plt.yticks([], [])
-    ax.annotate(text='', xy=(arrow1_end[0], arrow1_end[1]), xytext=(arrow1_beg[0], arrow1_beg[1]), fontsize=fontsize, arrowprops=dict(arrowstyle='->'))
-    ax.annotate(text='', xy=(arrow2_end[0], arrow2_end[1]), xytext=(arrow2_beg[0], arrow2_beg[1]), fontsize=fontsize, arrowprops=dict(arrowstyle='->'))
-    plt.text(t1_loc[0], t1_loc[1], text1, dict(size=fontsize))
-    plt.text(t2_loc[0], t2_loc[1], text2, dict(size=fontsize))
+    ax.annotate(text='$\\psi$', xy=(arrow1_end[0], arrow1_end[1]), xytext=(arrow1_beg[0], arrow1_beg[1]), fontsize=1.5*fontsize, arrowprops=dict(arrowstyle='->'))
+    ax.annotate(text='$\\tilde{\\psi}_+$', xy=(arrow2_end[0], arrow2_end[1]), xytext=(arrow2_beg[0], arrow2_beg[1]), fontsize=1.5*fontsize, arrowprops=dict(arrowstyle='->'))
+    ax.annotate(text='$\\tilde{\\psi}_-$', xy=(arrow3_end[0], arrow3_end[1]), xytext=(arrow3_beg[0], arrow3_beg[1]), fontsize=1.5*fontsize, arrowprops=dict(arrowstyle='->'))
+    plt.text(xlim[0] + 0.3, ylim[1] - 0.3, "$\\langle L_z\\rangle$", dict(size=fontsize))
+    plt.text(xlim[0] + 0.3, ylim[0] + 0.7, "$-\\langle L_z\\rangle$", dict(size=fontsize))
+    plt.text(xlim[1] - 0.8, ylim[1] - 0.3, "$\\langle L_z\\rangle$", dict(size=fontsize))
+    plt.text(xlim[1] - 0.8, ylim[0] + 0.7, "$-\\langle L_z\\rangle$", dict(size=fontsize))
+    plt.text((xlim[1] - xlim[0]) / 2 - 0.35, (ylim[1] - ylim[0]) / 2, "SCF", dict(size=fontsize))
+
     fig.tight_layout(pad=0.0001)
     plt.savefig("../paper/figures/toc.eps")
     plt.savefig("../paper/figures/toc.svg")
@@ -741,19 +747,18 @@ for at in atoms:
 figparams = {'height': 1.75,
              'width': 3.25,
              'size': (3.25,1.75),
-             'fontsize': 8,
+             'fontsize': 10,
              'linewidth': 0.7
              }
 
-ylim = [-3.5,6]
-xlim = [0,3]
-r0 = 1.0
-text1 = 'Tighter potential'
-t1_loc = [1.75, 1.0]
-text2 = 'More localized orbital'
+ylim = [0,4]
+xlim = [0,4]
+t1_loc = [0.2, 2.0]
 t2_loc = [0.65, -1.75]
-arrow1_beg = (1.82, 1.5)
-arrow1_end = (1.1, 4.0)
-arrow2_beg = (0.33, -0.75)
-arrow2_end = (0.33, -3)
-toc_graphic(r0, xlim, ylim, arrow1_beg, arrow1_end, arrow2_beg, arrow2_end, text1, text2, t1_loc, t2_loc, figparams)
+arrow1_beg = (0.6, 2.0)
+arrow1_end = (1.3, 2.1)
+arrow2_beg = (2.5, 2.5)
+arrow2_end = (3.3, 3.4)
+arrow3_beg = (2.5, 1.5)
+arrow3_end = (3.3, 0.9)
+toc_graphic(xlim, ylim, arrow1_beg, arrow1_end, arrow2_beg, arrow2_end, arrow3_beg, arrow3_end, t1_loc, t2_loc, figparams)
