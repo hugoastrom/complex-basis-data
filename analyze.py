@@ -333,13 +333,13 @@ def table_mean_difference(bases, atom, fname, label, caption):
     texfile.write('\centering\n')
     texfile.write('\\small\n')
     #texfile.write('\\begin{{tabular}}{{l{}}}\n'.format('|ccc'*len(bases)))
-    texfile.write('\\begin{tabular}{l|S[table-format=4.3]S[table-format=4.3]S[table-format=4.3]|S[table-format=4.3]S[table-format=4.3]S[table-format=4.3]}\n')
+    texfile.write('\\begin{tabular}{r|S[table-format=4.3]S[table-format=4.3]S[table-format=4.3]|S[table-format=4.3]S[table-format=4.3]S[table-format=4.3]}\n')
     texfile.write('\hline\n')
 
     # header
     #texfile.write(' &')
     for basis in bases:
-        texfile.write(f" & \\multicolumn{{3}}{{|c}}{{{basis}}}")
+        texfile.write(f" & \\multicolumn{{3}}{{|r}}{{{basis}}}")
     texfile.write("\\\\\n")
     texfile.write("\\hline \\hline\n")
     #texfile.write(' & state')
