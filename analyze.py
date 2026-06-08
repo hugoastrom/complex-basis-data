@@ -345,7 +345,7 @@ def table_mean_difference(bases, atom, fname, label, caption):
     #texfile.write(' & state')
     texfile.write('state')
     for _ in range(2):
-        texfile.write(' & {Real} & {Complex} & {Difference}')
+        texfile.write(' & {Real} & {Complex} & {Change}')
     texfile.write('\\\\ \n')
     texfile.write('\hline \hline\n')
 
