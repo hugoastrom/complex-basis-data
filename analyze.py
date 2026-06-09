@@ -505,8 +505,10 @@ def toc(atom_subset, basis):
     ymid = (left.y0 + left.y1) / 2
 
     #fig.text(xmid, ymid, "$C^\mathrm{complex}=DC^\mathrm{real}$", ha='center', va='center', fontsize=10)
-    fig.text(xmid - 0.2, ymid + 0.05, "$C^\mathrm{real}$", ha='center', va='center', fontsize=10)
-    fig.text(xmid + 0.25, ymid + 0.05, "$C^\mathrm{complex}$ \\\\ $=DC^\mathrm{real}$", ha='center', va='center', fontsize=10)
+    #fig.text(xmid - 0.2, ymid + 0.05, "$C^\mathrm{real}$", ha='center', va='center', fontsize=10)
+    fig.text(xmid - 0.2, ymid + 0.3, "Real HF", ha='center', va='center', fontsize=10)
+    #fig.text(xmid + 0.25, ymid + 0.05, "$C^\mathrm{complex}$ \\\\ $=DC^\mathrm{real}$", ha='center', va='center', fontsize=10)
+    fig.text(xmid + 0.25, ymid + 0.3, "$D^\dagger$(Real HF)$D$", ha='center', va='center', fontsize=10)
     
     n = len(atom_subset)
     for idata, data in enumerate([old_results, all_results]):
