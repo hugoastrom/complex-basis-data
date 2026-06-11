@@ -610,7 +610,7 @@ subset = ['aug-cc-pVTZ', 'AHGBSP3-9']
 #    table_one_basis(atoms,basis,f'{basis}_tab.tex',f'{basis}',f'Energy differences $\Delta E$ in m$E_h$ for the fully uncontracted {basis} basis set. States with all positive $\Delta E$ shown in blue, and states that exhibit negative $\Delta E$ at one or more field strength shown in red.', sideways = True)
 
 for at in atoms:
-    table_mean_difference(subset, at, f'{at}-mean-diff.tex', f'{at}-mean-differ', f'MAEDs between GTO and FEM energies in m$E_h$ for {at} in the fully uncontracted {" and ".join(subset)} basis sets.')
+    table_mean_difference(subset, at, f'{at}-mean-diff.tex', f'{at}-mean-differ', f'MAEDs between GTO and FEM energies in m$E_h$ for electronic configurations (following our shorthand notation) of the {at} atom in the fully uncontracted basis sets with real and complex orbitals. Configurations highlighted in magenta are equal in the real and complex basis and entries in light red belong to configuratoins that feature negative BSTEs.')
 
 toc(atoms, "AHGBSP3-9")
 
