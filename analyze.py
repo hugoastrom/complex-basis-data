@@ -661,23 +661,23 @@ for at in atoms:
 SItext = open('../paper/SItext.tex', 'w')
 
 tab_atoms = ["H", "He", "Li", "F", "Ne", "Na"]
-SItext.write('\\section{Mean Absolute Differences}')
-SItext.write('The mean absolute energy differences (MAEDs) for the aug-cc-pVTZ and AHGBSP3-9 basis sets, employing the real and complex spherical harmonics, and in the fully uncontracted form are given \n')
+SItext.write('The mean absolute energy differences (MAEDs) for the real and complex aug-cc-pVTZ and AHGBSP3-9 basis sets in the fully uncontracted form are given \n')
 for iat, at in enumerate(tab_atoms):
     if iat>0:
         SItext.write(', ')
     if iat == len(tab_atoms)-1:
         SItext.write('and ')
     SItext.write(f'in \\cref{{tab:{at}-mean-differ}} for {at}')
-SItext.write('.\n\n')
-SItext.write('\\section{Plots of FEM and GTO Total Energies}')
-SItext.write('Plots of the energies for all the studied states of all the studied atoms in both basis sets as a function of the field strength $B$ are given\n')
+SItext.write(".\nThe tables for all other atoms are found in the main text.\n")
+SItext.write('\n\n')
+SItext.write('Plots of the energies for all the studied states of all the studied atoms in both basis sets in their complex form as a function of the field strength $B$ are given\n')
 for iat, at in enumerate(atoms):
     if iat>0:
         SItext.write(", ")
     if iat == len(atoms) - 1:
         SItext.write("and ")
     SItext.write(f'in \\cref{{fig:{at}}} for the {at} atom'.replace(',',''))
+SItext.write(".\nThe notation in the legends is the same as in our previous paper.\n")
 
 # Input the corresponding tables and figures here
 for iat, at in enumerate(["H", "He", "Li", "F", "Ne", "Na"]):
@@ -696,6 +696,6 @@ for at in atoms:
     SItext.write("\\caption{AHGBSP3-9}\n")
     SItext.write(f"\\label{{fig:{at}-AHGBSP3-9}}\n")
     SItext.write("\\end{subfigure}\n")
-    SItext.write(f"\\caption{{Total energy of the {at} atom as a function of the magnetic field strength B in the aug-cc-pVTZ (left) and AHGBSP3-9 (right) basis sets}}\n")
+    SItext.write(f"\\caption{{Total energies of the studied configurations of the {at} atom as a function of the magnetic field strength B in the aug-cc-pVTZ (\\cref{{fig:{at}-aug-cc-pVTZ}}) and AHGBSP3-9 (\\cref{{fig:{at}-AHGBSP3-9}}) basis sets in uncontracted complex form.}}\n")
     SItext.write(f"\\label{{fig:{at}}}\n")
     SItext.write("\\end{figure}\n")
