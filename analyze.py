@@ -44,7 +44,7 @@ def is_converged(fname):
         #            e_change = float(line.split()[-1])
         #            if e_change > 0.0:
                         #print("Saddle point found previously for state %i of %s at B=%s with the %s basis" %(state, atom, field, basis))
-    
+
     try:
         f = open(fname)
     except:
@@ -74,6 +74,7 @@ def load_gto_energy(basis, atoms):
             for field in np.arange(0.00, 0.62, 0.02):
                 field = '{:.2f}'.format(field)
                 energies = {"core": None, "sap": None, "erkale_guess": None}
+                i = 0
                 for ifile, fname in enumerate([f'output/{at}/{field}/{basis}_{state}.stdout', f'output/{at}/{field}/sap_{basis}_{state}.stdout', f'output/{at}/{field}/erkale_guess_{basis}_{state}.stdout']):
                     if is_converged(fname):
                         f = open(fname)
@@ -82,7 +83,11 @@ def load_gto_energy(basis, atoms):
                                 line_split = line.split()
                                 energies[list(energies.keys())[ifile]] = float(line_split[-1].replace("!",""))
                                 break
+                    else:
+                        i += 1
 
+                if i == 3:
+                    print(f"{at} {field} not converged for any guess")
 
                 sorted_energies = sorted(energies.items(), key=lambda x: (x[1] is None, x[1]))
                 energy = sorted_energies[0][1]
@@ -105,6 +110,46 @@ def load_gto_energy(basis, atoms):
         old_data[at] = old_states
 
     return data, old_data
+
+def plot_diatomic(mols, bases):
+    markers = ["s", "x", "o"]
+    cs = ["k", "r", "c", "m", "b"]
+    # figure parameters
+    fig=plt.figure()
+    fig.set_figheight(10)
+    fig.set_figwidth(13.5)
+    figsize=(6,6)
+    fontsize=23
+    basis = "cc-pVTZ"
+    for mol in mols:
+        mvals = mols[mol]["M"]
+        rvals = mols[mol]["rvals"]
+        for im,m in enumerate(mvals):
+            #for ib,basis in enumerate(bases):
+            for lm in ["cmplx", "real"]:
+                e = []
+                for r in rvals:
+                    energy = None
+                    outfile = f"output/diatomic/{mol}/{basis}/{lm}/{r}/{m}.stdout"
+                    #if is_converged(outfile):
+                    with open(outfile) as f:
+                        for line in f:
+                            if 'SCF converged. Total energy is' in line:
+                                energy = float(line.split()[-1].replace("!",""))
+                    if energy is None:
+                        print(f"not converged for r={r} and M={m}")
+                    e.append(energy)
+                #opacity = 1 - ib * 0.3
+                if lm == "cmplx":
+                    marker = markers[0]
+                    label = f"$^{m[0]+'\\'+m[1].upper()+m[2:]}$ {basis}"
+                else:
+                    marker = markers[1]
+                    label = None
+                plt.plot([float(r) for r in rvals], e, marker, linewidth = 0.0, fillstyle = "none", color = cs[im], label = label)#, alpha = opacity)
+                plt.legend()
+        plt.savefig(f"{mol}.pdf")
+        plt.close()
 
 def n_states(at):
     n=0
@@ -221,16 +266,16 @@ def table_one_atom(atom,subset,fname,label,caption,sideways):
     # open .tex file
     texfile=open('tables/'+fname,'w')
     texfile.write('\\begin{{{}*}}\n'.format('sidewaystable' if sideways else 'table'))
-    texfile.write('\centering\n')
+    texfile.write('\\centering\n')
     texfile.write('\\tiny\n')
     texfile.write('\\begin{{tabular}}{{l{}}}\n'.format('c'*n_states(atom)))
-    texfile.write('\hline\n')
+    texfile.write('\\hline\n')
 
     # header
     for state in make_labels(atom):
         texfile.write(f' & {state}')
     texfile.write('\\\\ \n')
-    texfile.write('\hline \hline\n')
+    texfile.write('\\hline \\hline\n')
 
     # write data
     for basis in subset:
@@ -238,14 +283,14 @@ def table_one_atom(atom,subset,fname,label,caption,sideways):
         for state in range(n_states(atom)):
             if compute_avg_bste(basis,atom,state) is not None:
                 color = 'blue' if difference_is_positive(atom,state) else 'red'
-                texfile.write(' & \color{{{}}}{{$ {:.2f} $}}'.format(color, 1000*compute_avg_bste(basis,atom,state)))
+                texfile.write(' & \\color{{{}}}{{$ {:.2f} $}}'.format(color, 1000*compute_avg_bste(basis,atom,state)))
             else:
                 texfile.write(' & ')
         texfile.write('\\\\ \n')
-    texfile.write('\hline\n')
-    texfile.write('\end{tabular}\n')
-    texfile.write(f'\caption{{{caption}}}\n')
-    texfile.write(f'\label{{tab:{label}}}\n')
+    texfile.write('\\hline\n')
+    texfile.write('\\end{tabular}\n')
+    texfile.write(f'\\caption{{{caption}}}\n')
+    texfile.write(f'\\label{{tab:{label}}}\n')
     texfile.write('\\end{{{}*}}\n'.format('sidewaystable' if sideways else 'table'))
     texfile.close()
 
@@ -254,16 +299,16 @@ def table_one_basis(atoms,basis,fname,label,caption,sideways):
     # open .tex file
     texfile=open('tables/'+fname,'w')
     texfile.write('\\begin{{{}*}}\n'.format('sidewaystable' if sideways else 'table'))
-    texfile.write('\centering\n')
+    texfile.write('\\centering\n')
     texfile.write('\\tiny\n')
     texfile.write('\\begin{{tabular}}{{l{}}}\n'.format('c'*9))
-    texfile.write('\hline\n')
+    texfile.write('\\hline\n')
 
     # header
     for i in range(9):
         texfile.write(f' & state {i} ')
     texfile.write('\\\\ \n')
-    texfile.write('\hline \hline\n')
+    texfile.write('\\hline \\hline\n')
 
     # write data
     for at in atoms:
@@ -275,15 +320,15 @@ def table_one_basis(atoms,basis,fname,label,caption,sideways):
         for state in range(n_states(at)):
             if compute_avg_bste(basis,at,state) is not None:
                 color = 'blue' if difference_is_positive(at,state) else 'red'
-                texfile.write(' & \color{{{}}}{{$ {:.2f} $}}'.format(color, 1000*compute_avg_bste(basis,at,state)))
+                texfile.write(' & \\color{{{}}}{{$ {:.2f} $}}'.format(color, 1000*compute_avg_bste(basis,at,state)))
             else:
                 texfile.write(' & ')
         texfile.write(' &'*(9-n_states(at)))
         texfile.write('\\\\ \n')
-    texfile.write('\hline\n')
-    texfile.write('\end{tabular}\n')
-    texfile.write(f'\caption{{{caption}}}\n')
-    texfile.write(f'\label{{tab:{label}}}\n')
+    texfile.write('\\hline\n')
+    texfile.write('\\end{tabular}\n')
+    texfile.write(f'\\caption{{{caption}}}\n')
+    texfile.write(f'\\label{{tab:{label}}}\n')
     texfile.write('\\end{{{}*}}\n'.format('sidewaystable' if sideways else 'table'))
     texfile.close()
 
@@ -292,20 +337,20 @@ def table_total_energy(basis, atom, fname, label, caption):
     # open .tex file
     texfile=open('tables/'+fname,'w')
     texfile.write('\\begin{table*}\n')
-    texfile.write('\centering\n')
+    texfile.write('\\centering\n')
     texfile.write('\\tiny\n')
 
     # Field strengths to print out
     fields = [field for field in all_results['FEM'][atom][0] if field in all_results[basis][atom][0]]
 
     texfile.write('\\begin{{tabular}}{{l{}}}\n'.format('c'*len(fields)))
-    texfile.write('\hline\n')
+    texfile.write('\\hline\n')
 
     # header
     for field in fields:
         texfile.write(f' & $ {field} B_0 $')
     texfile.write('\\\\ \n')
-    texfile.write('\hline \hline\n')
+    texfile.write('\\hline \\hline\n')
 
     # write data
     for state in range(n_states(atom)):
@@ -318,11 +363,11 @@ def table_total_energy(basis, atom, fname, label, caption):
                 texfile.write(' & ')
         texfile.write('\\\\ \n')
 
-    texfile.write('\hline\n')
-    texfile.write('\end{tabular}\n')
-    texfile.write(f'\caption{{{caption}}}\n')
-    texfile.write(f'\label{{tab:{label}}}\n'.replace(',',''))
-    texfile.write('\end{table*}\n')
+    texfile.write('\\hline\n')
+    texfile.write('\\end{tabular}\n')
+    texfile.write(f'\\caption{{{caption}}}\n')
+    texfile.write(f'\\label{{tab:{label}}}\n'.replace(',',''))
+    texfile.write('\\end{table*}\n')
     texfile.close()
 
 def table_mean_difference(bases, atom, fname, label, caption):
@@ -330,11 +375,11 @@ def table_mean_difference(bases, atom, fname, label, caption):
     # open .tex file
     texfile=open('../paper/tables/'+fname,'w')
     texfile.write('\\begin{table*}\n')
-    texfile.write('\centering\n')
+    texfile.write('\\centering\n')
     texfile.write('\\small\n')
     #texfile.write('\\begin{{tabular}}{{l{}}}\n'.format('|ccc'*len(bases)))
-    texfile.write('\\begin{tabular}{c|S[table-format=4.3]S[table-format=4.3]S[table-format=4.3]|S[table-format=4.3]S[table-format=4.3]S[table-format=4.3]}\n')
-    texfile.write('\hline\n')
+    texfile.write('\\begin{tabular}{l|S[table-format=4.3]S[table-format=4.3]S[table-format=4.3]|S[table-format=4.3]S[table-format=4.3]S[table-format=4.3]}\n')
+    texfile.write('\\hline\n')
 
     # header
     #texfile.write(' &')
@@ -347,7 +392,7 @@ def table_mean_difference(bases, atom, fname, label, caption):
     for _ in range(2):
         texfile.write(' & {Real} & {Complex} & {Change}')
     texfile.write('\\\\ \n')
-    texfile.write('\hline \hline\n')
+    texfile.write('\\hline \\hline\n')
 
     # write data
     for state in range(n_states(atom)):
@@ -372,11 +417,11 @@ def table_mean_difference(bases, atom, fname, label, caption):
                 texfile.write(" & {:.3f}".format(1000 * (c_diff - real_diff)))
         texfile.write('\\\\ \n')
 
-    texfile.write('\hline\n')
-    texfile.write('\end{tabular}\n')
-    texfile.write(f'\caption{{{caption}}}\n')
-    texfile.write(f'\label{{tab:{label}}}\n')
-    texfile.write('\end{table*}\n')
+    texfile.write('\\hline\n')
+    texfile.write('\\end{tabular}\n')
+    texfile.write(f'\\caption{{{caption}}}\n')
+    texfile.write(f'\\label{{tab:{label}}}\n')
+    texfile.write('\\end{table*}\n')
     texfile.close()
 
 def find_min_max(at):
@@ -555,19 +600,24 @@ def toc(atom_subset, basis):
     #plt.savefig('../paper/figures/toc.eps')
     #plt.savefig('../paper/figures/toc.svg')
     plt.savefig('../paper/figures/toc.pdf')
-    
+
 mapp={
-    '-3': '\phi_+',
-    '-2': '\delta_+',
-    '-1': '\pi_+',
-    '0': '\sigma',
-    '1': '\pi_-',
-    '2': '\delta_-',
-    '3': '\phi_-'
+    '-3': '\\phi_+',
+    '-2': '\\delta_+',
+    '-1': '\\pi_+',
+    '0': '\\sigma',
+    '1': '\\pi_-',
+    '2': '\\delta_-',
+    '3': '\\phi_-'
 }
 
 colors = ['b','tab:orange','g','r','c','tab:pink','y','k','tab:brown']
 violin_colors = ['crimson', 'pink', 'purple', 'cornflowerblue', 'turquoise', 'navy', 'palegreen', 'forestgreen', 'gold', 'darkorange', 'brown', 'rosybrown', 'slategray', 'blue', 'magenta', 'palegoldenrod', 'darkslategray', 'yellowgreen']
+
+#mols = {"CuC": {"atoms": ["Cu", "C"], "M": [2, 4], "rvals": ["{:.2f}".format(r) for r in np.arange(0.499, 2.501, 0.05)]},
+mols = {"VF": {"atoms": ["V", "F"], "M": ["5pi", "5delta", "5sigma", "5phi", "5gamma"], "rvals": ["{:.2f}".format(r) for r in np.arange(1.2, 3.01, 0.05)]}}
+bs = ["cc-pVDZ", "cc-pVTZ", "cc-pVQZ"]
+plot_diatomic(mols, bs)
 
 # load all results
 all_results = {'FEM' : load_fem_energy(atoms)}
@@ -610,7 +660,7 @@ subset = ['aug-cc-pVTZ', 'AHGBSP3-9']
 #    table_one_basis(atoms,basis,f'{basis}_tab.tex',f'{basis}',f'Energy differences $\Delta E$ in m$E_h$ for the fully uncontracted {basis} basis set. States with all positive $\Delta E$ shown in blue, and states that exhibit negative $\Delta E$ at one or more field strength shown in red.', sideways = True)
 
 for at in atoms:
-    table_mean_difference(subset, at, f'{at}-mean-diff.tex', f'{at}-mean-differ', f'MAEDs between GTO and FEM energies in m$E_h$ for electronic configurations (following our shorthand notation) of the {at} atom in the fully uncontracted basis sets with real and complex orbitals. Configurations highlighted in magenta are equal in the real and complex basis and entries in light red belong to configuratoins that feature negative BSTEs.')
+    table_mean_difference(subset, at, f'{at}-mean-diff.tex', f'{at}-mean-differ', f'MAEDs between GTO and FEM energies in m$E_h$ for electronic configurations (following our shorthand notation) of the {at} atom in the fully uncontracted basis sets with real and complex orbitals. Configurations highlighted in magenta are equal in the real and complex basis and entries in light red belong to configurations that feature negative BSTEs.')
 
 toc(atoms, "AHGBSP3-9")
 

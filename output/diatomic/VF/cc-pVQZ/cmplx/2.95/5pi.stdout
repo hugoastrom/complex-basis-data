@@ -1,0 +1,1762 @@
+ERKALE - HF/DFT from Hel, OpenMP version, running on 8 cores.
+(c) Susi Lehtola, 2010-2016.
+
+This program is free software; you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation; either version 2 of the License, or
+(at your option) any later version.
+
+At svn revision 2329.
+
+Running on host silver.
+
+Current time is Tue 10 Nov 2026 11:03:13.
+
+Current Settings used by ERKALE:
+     AtomGuess      	                Auto	Method used for atomic guess (Auto for same as method)
+     Basis          	             cc-pVQZ	Basis set used in calculation
+     BasisCutoff    	           1.000e-08	Cutoff for dropping out small primitives from contraction
+     BasisOrth      	                Auto	Method of orthonormalization of basis set
+     BasisRotate    	               false	Rotate basis set to remove redundant functions?
+     Charge         	                   0	Total charge of system
+     CholDepThresh  	           1.000e-07	Partial Cholesky decomposition threshold
+     CholeskyFile   	        cholesky.chk	Filename for the DF/CD integral cache (used when CholeskyMode != 0). Plain and range-separated entries coexist in the same file under distinct keys.
+     CholeskyMode   	                   0	Save/load the DF/CD integral cache? 0 no, 1 save after fill, -1 load before fill (falls back to fill on mismatch). Useful for repeated runs that share orbital + auxiliary basis. Ignored when Direct=true.
+     CholeskyShThr  	           1.000e-02	Cholesky cache threshold
+     CholeskyThr    	           1.000e-07	Cholesky decomposition threshold
+     ComplexBasis   	                true	Use complex basis?
+     Confinement    	         0.0 0.0 0.0	Confinement potential V(r) = V_i x_i^2
+     ConvThr        	           1.000e-06	Orbital gradient convergence threshold
+     CylindricalSymmetry	               false	Give the m and -m orbitals the same radial-axial part and equal occupations, so that the density is cylindrically symmetric?
+     DFTBasisThr    	           1.000e-10	Threshold for screening basis functions on grid
+     DFTCpars       	                    	Override parameters of correlation functional (expert)
+     DFTDelta       	           1.000e+02	Switch to final DFT grid has converged within factor X
+     DFTDensityThr  	           1.000e-10	Threshold for screening density on grid
+     DFTFinalTol    	           1.000e-05	Tolerance of final DFT grid
+     DFTGrid        	             75 -302	DFT integration grid to use: nrad lmax or Auto for adaptive
+     DFTInitialTol  	           1.000e-04	Tolerance of initial DFT grid
+     DFTLobatto     	               false	Use Lobatto quadrature instead of Lebedev quadrature?
+     DFTQuadThresh  	           2.220e-16	Threshold for pruning points with small quadrature weight
+     DFTXpars       	                    	Override parameters of exchange functional (expert)
+     DIISComb       	               false	Combine alpha and beta errors in unrestricted calcs?
+     DIISEps        	           1.000e-01	Start mixing in DIIS when error is
+     DIISOrder      	                  10	How many DIIS iterations to keep in memory?
+     DIISThr        	           1.000e-02	DIIS error threshold for DIIS updates
+     DecFock        	               false	Use decontracted basis to calculate Fock matrix (direct HF)
+     Decontract     	                    	Indices of atoms to decontract basis set for
+     Direct         	               false	Calculate two-electron integrals (or density fitting) on-the-fly?
+     EField         	         0.0 0.0 0.0	Electric field
+     ErrorNorm      	                 rms	Error norm to use in the SCF code
+     FittingBasis   	def2-universal-jkfit	Basis to use for density fitting / RI: a basis-set name, Auto (CD-derived auto-aux, Lehtola JCTC 17, 6886 (2021); uncontracted, lmax-pruned per FittingLmaxInc) or AutoABS (Eichkorn-style automatic aux, J-only)
+     FittingCholeskyThreshold	           1.000e-08	Linear dependence threshold for pivoted Cholesky of Coulomb integrals in density fitting
+     FittingLmaxInc 	                   1	Angular-momentum pruning increment for the CD-derived auto-aux: keep l <= max(2*l_occ, l_obs+l_occ+FittingLmaxInc) (Lehtola JCTC 19, 6242 (2023)); negative keeps all shells
+     FittingThreshold	           1.000e-07	Linear dependence threshold for Coulomb integrals in density fitting
+     FractionalOccupations	               false	Let the trust-region solver optimize the occupations of the m blocks, allowing fractional occupations at a common Fermi level? Otherwise it keeps the occupations of the first-order SCF
+     Guess          	                 sap	Used guess: SAD (default), SADNO, core, GWH, SAP, SAPfit, or ProjFree (with LoadChk)
+     HarmonicConfinement	           0.000e+00	Harmonic confinement strength k (potential 1/2 k r^2), 0 = off
+     HundBias       	           0.000e+00	Hund-like aufbau: lower the orbital energies of the m block by HundBias*m during the first-order SCF, so that +m fills before -m and open shells maximize M_L; the energy of an m/-m pair is unchanged (0: off)
+     InputBohr      	               false	Use atomic units as input units instead of angstrom?
+     IntegralThresh 	           1.000e-10	Integral screening threshold
+     JKMethod       	            Cholesky	Coulomb/exchange build method: 4index (exact ERIs, in-core or Direct), RI (density fitting with a Gaussian auxiliary basis -- set FittingBasis), Cholesky (two-step pivoted Cholesky decomposition; Folkestad/Kjonstad/Koch JCP 150, 194112 (2019); exact at threshold) or CDFit (density fitting on a per-atom CD-derived auxiliary basis; Lehtola JCTC 17, 6886 (2021); exact only as the orbital basis becomes complete).
+     Kgwh           	           1.750e+00	Scaling constant for GWH
+     LinDepThresh   	           1.000e-05	Basis set linear dependency threshold
+     LinearB        	           0.000e+00	Magnetic field along bond axis
+     LinearE        	           0.000e+00	Electric field along bond (z) axis
+     LinearFreeze   	               false	If using linear symmetry, freeze symmetry to input guess
+     LinearOccupationFile	         linoccs.dat	File to read linear occupations from
+     LinearOccupations	                   0	Read in occupations for linear molecule calculations?
+     LinearSymmetry 	                true	Do special calculation on linear molecule along z axis
+     LoadChk        	                    	Checkpoint file to load from
+     Logfile        	          erkale.log	File to print out full information, stdout for screen
+     MaxIter        	                 100	Maximum number of iterations in SCF cycle
+     Method         	 gga_x_pbe-gga_c_pbe	Method used in calculation (HF or a DFT functional)
+     Multiplicity   	                   5	Spin multiplicity
+     NLGrid         	             50 -194	Integration grid to use for nonlocal correlation: nrad lmax
+     OccRIK         	               false	Use the occ-RI-K algorithm (Manzer et al, JCP 143, 024113 (2015)) for density-fitted/Cholesky exchange? Gives the exact (RI) SCF energy and density but only approximate virtual orbital energies. Ignored for the four-index method.
+     Occupancies    	                    	Orbital occupancies
+     OptLM          	               false	If spherical harmonics used, use cartesian s and p functions?
+     PZ             	               false	Perform Perdew-Zunger self-interaction correction?
+     PZEthr         	           1.000e-10	Threshold for energy convergence
+     PZIthr         	           1.000e-02	Threshold for initialization convergence (not too small!)
+     PZNRthr        	           0.000e+00	Threshold for use of NR method in OO optimization
+     PZOOthr        	           1.000e-04	Gradient threshold for OO optimization
+     PZOVthr        	           1.000e-05	Gradient threshold for OV optimization
+     PZimag         	                Auto	Imaginary degrees of freedom in PZ?
+     PZiter         	                  20	Max number of iterations in self-consistency iteration
+     PZloc          	                Auto	Initial localization before SIC calculation?
+     PZlocmet       	                  FB	Initial localization method (recommend FB or IAO)
+     PZmode         	                  XC	Apply PZ to the operators (in addition to J): X C D
+     PZoo           	                true	Optimize OO block?
+     PZov           	                true	Optimize OV block?
+     PZprec         	                   1	Precondition OV block? 0: no, 1: unified, 2: orbital
+     PZrand         	                true	Apply random rotation in PZ initialization? (Should be true)
+     PZscale        	            Constant	Scaling for PZ: Constant, Density or Kinetic
+     PZscaleExp     	           1.000e+00	Exponent in the dynamic scaling equation
+     PZseed         	                   0	Seed number for randomized matrices?
+     PZstab         	                   0	Stability analysis for PZ-SIC? 1 or -1 for OO, 2 or -2 for OO+OV
+     PZstabThr      	           1.000e-03	Instability threshold (interpreted as -thr)
+     PZw            	           1.000e+00	Weight for Perdew-Zunger self-interaction correction
+     Restricted     	               false	Spin restricted?
+     SAPBasis       	    helfem_large.gbs	Tabulated atomic effective potential "basis set"
+     SAPGrid        	                    	SAP integration grid to use: nrad lmax or leave empty
+     SCFMethods     	        DIIS + LBFGS	SCF convergence methods to use
+     SaveChk        	   complex_basis.chk	Checkpoint file to save to
+     ScreeningThresh	           1.000e-10	Density-weighted Fock-contribution screening threshold
+     Shift          	           0.000e+00	Level shift to use in Hartree
+     StabilityAnalysis	                true	Check the stability of the solution within its symmetry, following instabilities if TrustRegion is used?
+     System         	              VF.xyz	System as an xyz file
+     TRRHminS       	           9.750e-01	Trust-Region Roothaan-Hall minimal occupied orbital overlap
+     TrustRegion    	                true	Finish the SCF with second-order trust-region optimization (OpenTrustRegion)?
+     TrustRegionCheck	           0.000e+00	Check the trust-region gradient and Hessian against finite differences of the energy with this step at the handover (0: no check)
+     TrustRegionExactPrecond	                true	Precondition the trust-region occupation directions with the exact occupation Hessian? (Off only to measure what it buys)
+     TrustRegionHandover	           0.000e+00	Convergence threshold at which the first-order SCF hands over to the trust-region solver (0: ConvThr)
+     UseADIIS       	                true	Use ADIIS for Fock matrix interpolation?
+     UseBroyden     	               false	Use Broyden mixing of Fock matrices?
+     UseDIIS        	                true	Use Pulay's Direct Inversion in the Iterative Subspace?
+     UseLM          	                true	Use a spherical harmonics basis set by default?
+     UseTRRH        	               false	Use Trust-Region Roothaan-Hall?
+     VV10           	                Auto	Use VV10 non-local correlation?
+     VV10Pars       	                    	VV10 parameters: b C
+     Verbose        	                true	Verbose calculation?
+     Verbosity      	                   5	Verboseness level
+
+Basis set cc-pVQZ found in file cc-pVQZ.gbs in /home/lehtola/programs/erkale/basis/.
+Basis set helfem_large.gbs found in file helfem_large.gbs in /home/lehtola/programs/erkale/basis/.
+Computing repulsion integrals (two-step CD).
+Note: this libcint drops integrals of diffuse primitives of high angular momentum; raising its screening cutoff for bases that need it.
+Two-step CD: screening reduced dofs by factor 2.04.
+Two-step CD selected 1453 pivot orbital pairs after pivoting (4.79 s).
+Pivot selection time use: integrals 59.0 %, linear algebra 41.0 %.
+Two-step CD: pivot metric orthogonalisation reduced 1453 -> 1452 functions (0.46 s).
+Two-step CD finished in 9.14 s.
+Metric build / orthogonalisation time use: integrals 57.4 %, linear algebra 42.6 %.
+342 shell pairs out of 351 are significant.
+Constructing static nrad=75 lmax=29 XC grid.
+Composition of XC grid:
+    atom Npoints     Nfuncs
+    1 V    21305    2521876
+    2 F    21305    2640729
+342 shell pairs and 2 nuclei
+SAP potential formed in 0.514 s.
+Smallest eigenvalue of overlap matrix is 1.00e+00, reciprocal condition number is 1.00e+00.
+Using symmetric orthogonalization.
+Smallest eigenvalue of overlap matrix is 6.83e-01, reciprocal condition number is 5.19e-01.
+Using symmetric orthogonalization.
+Smallest eigenvalue of overlap matrix is 4.05e-01, reciprocal condition number is 2.45e-01.
+Using symmetric orthogonalization.
+Smallest eigenvalue of overlap matrix is 7.92e-02, reciprocal condition number is 4.01e-02.
+Using symmetric orthogonalization.
+Smallest eigenvalue of overlap matrix is 3.39e-05, reciprocal condition number is 1.03e-05.
+Using symmetric orthogonalization.
+Smallest eigenvalue of overlap matrix is 3.25e-05, reciprocal condition number is 7.68e-06.
+Using symmetric orthogonalization.
+Smallest eigenvalue of overlap matrix is 3.39e-05, reciprocal condition number is 1.03e-05.
+Using symmetric orthogonalization.
+Smallest eigenvalue of overlap matrix is 7.92e-02, reciprocal condition number is 4.01e-02.
+Using symmetric orthogonalization.
+Smallest eigenvalue of overlap matrix is 4.05e-01, reciprocal condition number is 2.45e-01.
+Using symmetric orthogonalization.
+Smallest eigenvalue of overlap matrix is 6.83e-01, reciprocal condition number is 5.19e-01.
+Using symmetric orthogonalization.
+Smallest eigenvalue of overlap matrix is 1.00e+00, reciprocal condition number is 1.00e+00.
+Using symmetric orthogonalization.
+Nela = 18 Nelb = 14
+
+
+
+Solving SCF
+Evaluated energy -1040.1013604391 (change from lowest -1.040101e+03)
+
+
+Iteration 1: 1 Fock evaluations energy -1040.1013604391 change -1.040101e+03 DIIS error vector rms norm 2.671150e-02
+History size 1
+alpha m=-1 occupations: 1 1 1 1
+alpha m=0 occupations: 1 1 1 1 1 1 1 1 1 1
+alpha m=1 occupations: 1 1 1 1
+beta m=-1 occupations: 1 1 1
+beta m=0 occupations: 1 1 1 1 1 1 1 1
+beta m=1 occupations: 1 1 1
+ADIIS+DIIS step
+Evaluated energy -998.6995653523 (change from lowest 4.140180e+01)
+Density matrix difference 5.647726e-01 between lowest-energy and newest entry
+
+
+Iteration 2: 2 Fock evaluations energy -1040.1013604391 change  0.000000e+00 DIIS error vector rms norm 2.671150e-02
+History size 2
+alpha m=-1 occupations: 1 1 1 1
+alpha m=0 occupations: 1 1 1 1 1 1 1 1 1 1
+alpha m=1 occupations: 1 1 1 1
+beta m=-1 occupations: 1 1 1
+beta m=0 occupations: 1 1 1 1 1 1 1 1
+beta m=1 occupations: 1 1 1
+EDIIS+DIIS step
+Evaluated energy -1032.2970250048 (change from lowest 7.804335e+00)
+Density matrix difference 4.085127e-01 between lowest-energy and newest entry
+
+
+Iteration 3: 3 Fock evaluations energy -1040.1013604391 change  0.000000e+00 DIIS error vector rms norm 2.671150e-02
+History size 3
+alpha m=-1 occupations: 1 1 1 1
+alpha m=0 occupations: 1 1 1 1 1 1 1 1 1 1
+alpha m=1 occupations: 1 1 1 1
+beta m=-1 occupations: 1 1 1
+beta m=0 occupations: 1 1 1 1 1 1 1 1
+beta m=1 occupations: 1 1 1
+EDIIS+DIIS step
+Evaluated energy -1042.8164328139 (change from lowest -2.715072e+00)
+Density matrix difference 2.056775e-01 between lowest-energy and newest entry
+
+
+Iteration 4: 4 Fock evaluations energy -1042.8164328139 change -2.715072e+00 DIIS error vector rms norm 2.213926e-02
+History size 4
+alpha m=-2 occupations: 1
+alpha m=-1 occupations: 1 1 1 1
+alpha m=0 occupations: 1 1 1 1 1 1 1 1 1
+alpha m=1 occupations: 1 1 1
+alpha m=2 occupations: 1
+beta m=-1 occupations: 1 1 1
+beta m=0 occupations: 1 1 1 1 1 1 1 1
+beta m=1 occupations: 1 1 1
+EDIIS+DIIS step
+Evaluated energy -1032.9130182705 (change from lowest 9.903415e+00)
+Density matrix difference 2.333200e-01 between lowest-energy and newest entry
+
+
+Iteration 5: 5 Fock evaluations energy -1042.8164328139 change  0.000000e+00 DIIS error vector rms norm 2.213926e-02
+History size 5
+alpha m=-2 occupations: 1
+alpha m=-1 occupations: 1 1 1 1
+alpha m=0 occupations: 1 1 1 1 1 1 1 1 1
+alpha m=1 occupations: 1 1 1
+alpha m=2 occupations: 1
+beta m=-1 occupations: 1 1 1
+beta m=0 occupations: 1 1 1 1 1 1 1 1
+beta m=1 occupations: 1 1 1
+ADIIS+DIIS step
+Evaluated energy -1028.6932940144 (change from lowest 1.412314e+01)
+Density matrix difference 3.137490e-01 between lowest-energy and newest entry
+
+
+Iteration 6: 6 Fock evaluations energy -1042.8164328139 change  0.000000e+00 DIIS error vector rms norm 2.213926e-02
+History size 6
+alpha m=-2 occupations: 1
+alpha m=-1 occupations: 1 1 1 1
+alpha m=0 occupations: 1 1 1 1 1 1 1 1 1
+alpha m=1 occupations: 1 1 1
+alpha m=2 occupations: 1
+beta m=-1 occupations: 1 1 1
+beta m=0 occupations: 1 1 1 1 1 1 1 1
+beta m=1 occupations: 1 1 1
+ADIIS+DIIS step
+Evaluated energy -1030.0263781049 (change from lowest 1.279005e+01)
+Density matrix difference 3.088373e-01 between lowest-energy and newest entry
+
+
+Iteration 7: 7 Fock evaluations energy -1042.8164328139 change  0.000000e+00 DIIS error vector rms norm 2.213926e-02
+History size 7
+alpha m=-2 occupations: 1
+alpha m=-1 occupations: 1 1 1 1
+alpha m=0 occupations: 1 1 1 1 1 1 1 1 1
+alpha m=1 occupations: 1 1 1
+alpha m=2 occupations: 1
+beta m=-1 occupations: 1 1 1
+beta m=0 occupations: 1 1 1 1 1 1 1 1
+beta m=1 occupations: 1 1 1
+ADIIS+DIIS step
+Evaluated energy -1030.2510132355 (change from lowest 1.256542e+01)
+Density matrix difference 2.593218e-01 between lowest-energy and newest entry
+
+
+Iteration 8: 8 Fock evaluations energy -1042.8164328139 change  0.000000e+00 DIIS error vector rms norm 2.213926e-02
+History size 8
+alpha m=-2 occupations: 1
+alpha m=-1 occupations: 1 1 1 1
+alpha m=0 occupations: 1 1 1 1 1 1 1 1 1
+alpha m=1 occupations: 1 1 1
+alpha m=2 occupations: 1
+beta m=-1 occupations: 1 1 1
+beta m=0 occupations: 1 1 1 1 1 1 1 1
+beta m=1 occupations: 1 1 1
+ADIIS+DIIS step
+Evaluated energy -1030.3097990057 (change from lowest 1.250663e+01)
+Density matrix difference 3.085097e-01 between lowest-energy and newest entry
+
+
+Iteration 9: 9 Fock evaluations energy -1042.8164328139 change  0.000000e+00 DIIS error vector rms norm 2.213926e-02
+History size 9
+alpha m=-2 occupations: 1
+alpha m=-1 occupations: 1 1 1 1
+alpha m=0 occupations: 1 1 1 1 1 1 1 1 1
+alpha m=1 occupations: 1 1 1
+alpha m=2 occupations: 1
+beta m=-1 occupations: 1 1 1
+beta m=0 occupations: 1 1 1 1 1 1 1 1
+beta m=1 occupations: 1 1 1
+Switching DIIS -> L-BFGS: 5 consecutive failed DIIS iterations
+L-BFGS step (0 remaining in burst)
+L-BFGS: trial sigma 1.000000e-03 t 6.931243e-03, energy -1039.0666928031, change 3.749740e+00
+L-BFGS: cubic Hermite predicts t = 6.965394e-04 (in [0, 6.931243e-03]).
+L-BFGS: trial sigma 1.000000e-03 t 6.965394e-04, energy -1042.9568521243, change -1.404193e-01
+Density matrix difference 3.078703e-01 between lowest-energy and newest entry
+
+
+Iteration 10: 11 Fock evaluations energy -1042.9568521243 change -1.404193e-01 DIIS error vector rms norm 2.024310e-02
+History size 10
+alpha m=-2 occupations: 1
+alpha m=-1 occupations: 1 1 1 1
+alpha m=0 occupations: 1 1 1 1 1 1 1 1 1
+alpha m=1 occupations: 1 1 1
+alpha m=2 occupations: 1
+beta m=-1 occupations: 1 1 1
+beta m=0 occupations: 1 1 1 1 1 1 1 1
+beta m=1 occupations: 1 1 1
+ADIIS+DIIS step
+Evaluated energy -1030.9257004748 (change from lowest 1.203115e+01)
+Density matrix difference 2.561119e-01 between lowest-energy and newest entry
+
+
+Iteration 11: 12 Fock evaluations energy -1042.9568521243 change  0.000000e+00 DIIS error vector rms norm 2.024310e-02
+History size 10
+alpha m=-2 occupations: 1
+alpha m=-1 occupations: 1 1 1 1
+alpha m=0 occupations: 1 1 1 1 1 1 1 1 1
+alpha m=1 occupations: 1 1 1
+alpha m=2 occupations: 1
+beta m=-1 occupations: 1 1 1
+beta m=0 occupations: 1 1 1 1 1 1 1 1
+beta m=1 occupations: 1 1 1
+EDIIS+DIIS step
+Evaluated energy -1039.7403171300 (change from lowest 3.216535e+00)
+Density matrix difference 2.799161e-01 between lowest-energy and newest entry
+
+
+Iteration 12: 13 Fock evaluations energy -1042.9568521243 change  0.000000e+00 DIIS error vector rms norm 2.024310e-02
+History size 10
+alpha m=-2 occupations: 1
+alpha m=-1 occupations: 1 1 1 1
+alpha m=0 occupations: 1 1 1 1 1 1 1 1 1
+alpha m=1 occupations: 1 1 1
+alpha m=2 occupations: 1
+beta m=-1 occupations: 1 1 1
+beta m=0 occupations: 1 1 1 1 1 1 1 1
+beta m=1 occupations: 1 1 1
+EDIIS+DIIS step
+Evaluated energy -1043.1691884795 (change from lowest -2.123364e-01)
+Density matrix difference 2.727700e-01 between lowest-energy and newest entry
+
+
+Iteration 13: 14 Fock evaluations energy -1043.1691884795 change -2.123364e-01 DIIS error vector rms norm 1.408685e-02
+History size 10
+alpha m=-2 occupations: 1
+alpha m=-1 occupations: 1 1 1 1
+alpha m=0 occupations: 1 1 1 1 1 1 1 1 1
+alpha m=1 occupations: 1 1 1
+alpha m=2 occupations: 1
+beta m=-1 occupations: 1 1 1
+beta m=0 occupations: 1 1 1 1 1 1 1 1
+beta m=1 occupations: 1 1 1
+EDIIS+DIIS step
+Evaluated energy -1043.4143635675 (change from lowest -2.451751e-01)
+Density matrix difference 4.790547e-02 between lowest-energy and newest entry
+
+
+Iteration 14: 15 Fock evaluations energy -1043.4143635675 change -2.451751e-01 DIIS error vector rms norm 5.563726e-03
+History size 10
+alpha m=-2 occupations: 1
+alpha m=-1 occupations: 1 1 1 1
+alpha m=0 occupations: 1 1 1 1 1 1 1 1 1
+alpha m=1 occupations: 1 1 1
+alpha m=2 occupations: 1
+beta m=-1 occupations: 1 1 1
+beta m=0 occupations: 1 1 1 1 1 1 1 1
+beta m=1 occupations: 1 1 1
+EDIIS+DIIS step
+Evaluated energy -1043.3659469282 (change from lowest 4.841664e-02)
+Density matrix difference 7.487927e-02 between lowest-energy and newest entry
+
+
+Iteration 15: 16 Fock evaluations energy -1043.4143635675 change  0.000000e+00 DIIS error vector rms norm 5.563726e-03
+History size 10
+alpha m=-2 occupations: 1
+alpha m=-1 occupations: 1 1 1 1
+alpha m=0 occupations: 1 1 1 1 1 1 1 1 1
+alpha m=1 occupations: 1 1 1
+alpha m=2 occupations: 1
+beta m=-1 occupations: 1 1 1
+beta m=0 occupations: 1 1 1 1 1 1 1 1
+beta m=1 occupations: 1 1 1
+ADIIS+DIIS step
+Evaluated energy -1042.4344707261 (change from lowest 9.798928e-01)
+Density matrix difference 1.216489e-01 between lowest-energy and newest entry
+
+
+Iteration 16: 17 Fock evaluations energy -1043.4143635675 change  0.000000e+00 DIIS error vector rms norm 5.563726e-03
+History size 10
+alpha m=-2 occupations: 1
+alpha m=-1 occupations: 1 1 1 1
+alpha m=0 occupations: 1 1 1 1 1 1 1 1 1
+alpha m=1 occupations: 1 1 1
+alpha m=2 occupations: 1
+beta m=-1 occupations: 1 1 1
+beta m=0 occupations: 1 1 1 1 1 1 1 1
+beta m=1 occupations: 1 1 1
+ADIIS+DIIS step
+Evaluated energy -1043.4271560285 (change from lowest -1.279246e-02)
+Density matrix difference 1.003607e-01 between lowest-energy and newest entry
+
+
+Iteration 17: 18 Fock evaluations energy -1043.4271560285 change -1.279246e-02 DIIS error vector rms norm 4.455262e-03
+History size 10
+alpha m=-2 occupations: 1
+alpha m=-1 occupations: 1 1 1 1
+alpha m=0 occupations: 1 1 1 1 1 1 1 1 1
+alpha m=1 occupations: 1 1 1
+alpha m=2 occupations: 1
+beta m=-1 occupations: 1 1 1
+beta m=0 occupations: 1 1 1 1 1 1 1 1
+beta m=1 occupations: 1 1 1
+ADIIS+DIIS step
+Evaluated energy -1043.4640882417 (change from lowest -3.693221e-02)
+Density matrix difference 2.036660e-02 between lowest-energy and newest entry
+
+
+Iteration 18: 19 Fock evaluations energy -1043.4640882417 change -3.693221e-02 DIIS error vector rms norm 5.120727e-04
+History size 10
+alpha m=-2 occupations: 1
+alpha m=-1 occupations: 1 1 1 1
+alpha m=0 occupations: 1 1 1 1 1 1 1 1 1
+alpha m=1 occupations: 1 1 1
+alpha m=2 occupations: 1
+beta m=-1 occupations: 1 1 1
+beta m=0 occupations: 1 1 1 1 1 1 1 1
+beta m=1 occupations: 1 1 1
+ADIIS+DIIS step
+Evaluated energy -1043.4644701232 (change from lowest -3.818815e-04)
+Density matrix difference 7.279609e-03 between lowest-energy and newest entry
+
+
+Iteration 19: 20 Fock evaluations energy -1043.4644701232 change -3.818815e-04 DIIS error vector rms norm 3.962185e-04
+History size 10
+alpha m=-2 occupations: 1
+alpha m=-1 occupations: 1 1 1 1
+alpha m=0 occupations: 1 1 1 1 1 1 1 1 1
+alpha m=1 occupations: 1 1 1
+alpha m=2 occupations: 1
+beta m=-1 occupations: 1 1 1
+beta m=0 occupations: 1 1 1 1 1 1 1 1
+beta m=1 occupations: 1 1 1
+ADIIS+DIIS step
+Evaluated energy -1043.4646876339 (change from lowest -2.175107e-04)
+Density matrix difference 2.821865e-03 between lowest-energy and newest entry
+
+
+Iteration 20: 21 Fock evaluations energy -1043.4646876339 change -2.175107e-04 DIIS error vector rms norm 2.136628e-04
+History size 10
+alpha m=-2 occupations: 1
+alpha m=-1 occupations: 1 1 1 1
+alpha m=0 occupations: 1 1 1 1 1 1 1 1 1
+alpha m=1 occupations: 1 1 1
+alpha m=2 occupations: 1
+beta m=-1 occupations: 1 1 1
+beta m=0 occupations: 1 1 1 1 1 1 1 1
+beta m=1 occupations: 1 1 1
+ADIIS+DIIS step
+Evaluated energy -1043.4546406227 (change from lowest 1.004701e-02)
+Density matrix difference 9.502459e-02 between lowest-energy and newest entry
+
+
+Iteration 21: 22 Fock evaluations energy -1043.4646876339 change  0.000000e+00 DIIS error vector rms norm 2.136628e-04
+History size 10
+alpha m=-2 occupations: 1
+alpha m=-1 occupations: 1 1 1 1
+alpha m=0 occupations: 1 1 1 1 1 1 1 1 1
+alpha m=1 occupations: 1 1 1
+alpha m=2 occupations: 1
+beta m=-1 occupations: 1 1 1
+beta m=0 occupations: 1 1 1 1 1 1 1 1
+beta m=1 occupations: 1 1 1
+ADIIS+DIIS step
+Evaluated energy -1043.4547011216 (change from lowest 9.986512e-03)
+Density matrix difference 9.506022e-02 between lowest-energy and newest entry
+
+
+Iteration 22: 23 Fock evaluations energy -1043.4646876339 change  0.000000e+00 DIIS error vector rms norm 2.136628e-04
+History size 10
+alpha m=-2 occupations: 1
+alpha m=-1 occupations: 1 1 1 1
+alpha m=0 occupations: 1 1 1 1 1 1 1 1 1
+alpha m=1 occupations: 1 1 1
+alpha m=2 occupations: 1
+beta m=-1 occupations: 1 1 1
+beta m=0 occupations: 1 1 1 1 1 1 1 1
+beta m=1 occupations: 1 1 1
+ADIIS+DIIS step
+Evaluated energy -1043.4547024070 (change from lowest 9.985227e-03)
+Density matrix difference 9.506099e-02 between lowest-energy and newest entry
+
+
+Iteration 23: 24 Fock evaluations energy -1043.4646876339 change  0.000000e+00 DIIS error vector rms norm 2.136628e-04
+History size 10
+alpha m=-2 occupations: 1
+alpha m=-1 occupations: 1 1 1 1
+alpha m=0 occupations: 1 1 1 1 1 1 1 1 1
+alpha m=1 occupations: 1 1 1
+alpha m=2 occupations: 1
+beta m=-1 occupations: 1 1 1
+beta m=0 occupations: 1 1 1 1 1 1 1 1
+beta m=1 occupations: 1 1 1
+ADIIS+DIIS step
+Evaluated energy -1043.4547018946 (change from lowest 9.985739e-03)
+Density matrix difference 9.506039e-02 between lowest-energy and newest entry
+
+
+Iteration 24: 25 Fock evaluations energy -1043.4646876339 change  0.000000e+00 DIIS error vector rms norm 2.136628e-04
+History size 10
+alpha m=-2 occupations: 1
+alpha m=-1 occupations: 1 1 1 1
+alpha m=0 occupations: 1 1 1 1 1 1 1 1 1
+alpha m=1 occupations: 1 1 1
+alpha m=2 occupations: 1
+beta m=-1 occupations: 1 1 1
+beta m=0 occupations: 1 1 1 1 1 1 1 1
+beta m=1 occupations: 1 1 1
+ADIIS+DIIS step
+Evaluated energy -1043.4546036617 (change from lowest 1.008397e-02)
+Density matrix difference 9.527450e-02 between lowest-energy and newest entry
+
+
+Iteration 25: 26 Fock evaluations energy -1043.4646876339 change  0.000000e+00 DIIS error vector rms norm 2.136628e-04
+History size 10
+alpha m=-2 occupations: 1
+alpha m=-1 occupations: 1 1 1 1
+alpha m=0 occupations: 1 1 1 1 1 1 1 1 1
+alpha m=1 occupations: 1 1 1
+alpha m=2 occupations: 1
+beta m=-1 occupations: 1 1 1
+beta m=0 occupations: 1 1 1 1 1 1 1 1
+beta m=1 occupations: 1 1 1
+Switching DIIS -> L-BFGS: 5 consecutive failed DIIS iterations
+L-BFGS step (0 remaining in burst)
+L-BFGS: applying two-loop direction (history size 1).
+L-BFGS: trial sigma 1.000000e-03 t 1.000000e+00, energy -1039.6480377726, change 3.816650e+00
+L-BFGS: cubic Hermite predicts t = 1.661281e-03 (in [0, 1.000000e+00]).
+L-BFGS: trial sigma 1.000000e-03 t 1.661281e-03, energy -1043.4646981338, change -1.049994e-05
+Density matrix difference 9.533373e-02 between lowest-energy and newest entry
+
+
+Iteration 26: 28 Fock evaluations energy -1043.4646981338 change -1.049994e-05 DIIS error vector rms norm 1.942728e-04
+History size 10
+alpha m=-2 occupations: 1
+alpha m=-1 occupations: 1 1 1 1
+alpha m=0 occupations: 1 1 1 1 1 1 1 1 1
+alpha m=1 occupations: 1 1 1
+alpha m=2 occupations: 1
+beta m=-1 occupations: 1 1 1
+beta m=0 occupations: 1 1 1 1 1 1 1 1
+beta m=1 occupations: 1 1 1
+ADIIS+DIIS step
+Evaluated energy -1043.4545643021 (change from lowest 1.013383e-02)
+Density matrix difference 9.612241e-02 between lowest-energy and newest entry
+
+
+Iteration 27: 29 Fock evaluations energy -1043.4646981338 change  0.000000e+00 DIIS error vector rms norm 1.942728e-04
+History size 10
+alpha m=-2 occupations: 1
+alpha m=-1 occupations: 1 1 1 1
+alpha m=0 occupations: 1 1 1 1 1 1 1 1 1
+alpha m=1 occupations: 1 1 1
+alpha m=2 occupations: 1
+beta m=-1 occupations: 1 1 1
+beta m=0 occupations: 1 1 1 1 1 1 1 1
+beta m=1 occupations: 1 1 1
+ADIIS+DIIS step
+Evaluated energy -1043.4546796193 (change from lowest 1.001851e-02)
+Density matrix difference 9.579358e-02 between lowest-energy and newest entry
+
+
+Iteration 28: 30 Fock evaluations energy -1043.4646981338 change  0.000000e+00 DIIS error vector rms norm 1.942728e-04
+History size 10
+alpha m=-2 occupations: 1
+alpha m=-1 occupations: 1 1 1 1
+alpha m=0 occupations: 1 1 1 1 1 1 1 1 1
+alpha m=1 occupations: 1 1 1
+alpha m=2 occupations: 1
+beta m=-1 occupations: 1 1 1
+beta m=0 occupations: 1 1 1 1 1 1 1 1
+beta m=1 occupations: 1 1 1
+ADIIS+DIIS step
+Evaluated energy -1043.4548244117 (change from lowest 9.873722e-03)
+Density matrix difference 9.561707e-02 between lowest-energy and newest entry
+
+
+Iteration 29: 31 Fock evaluations energy -1043.4646981338 change  0.000000e+00 DIIS error vector rms norm 1.942728e-04
+History size 10
+alpha m=-2 occupations: 1
+alpha m=-1 occupations: 1 1 1 1
+alpha m=0 occupations: 1 1 1 1 1 1 1 1 1
+alpha m=1 occupations: 1 1 1
+alpha m=2 occupations: 1
+beta m=-1 occupations: 1 1 1
+beta m=0 occupations: 1 1 1 1 1 1 1 1
+beta m=1 occupations: 1 1 1
+ADIIS+DIIS step
+Evaluated energy -1043.4559252616 (change from lowest 8.772872e-03)
+Density matrix difference 1.020766e-02 between lowest-energy and newest entry
+
+
+Iteration 30: 32 Fock evaluations energy -1043.4646981338 change  0.000000e+00 DIIS error vector rms norm 1.942728e-04
+History size 10
+alpha m=-2 occupations: 1
+alpha m=-1 occupations: 1 1 1 1
+alpha m=0 occupations: 1 1 1 1 1 1 1 1 1
+alpha m=1 occupations: 1 1 1
+alpha m=2 occupations: 1
+beta m=-1 occupations: 1 1 1
+beta m=0 occupations: 1 1 1 1 1 1 1 1
+beta m=1 occupations: 1 1 1
+ADIIS+DIIS step
+Evaluated energy -1043.4547425184 (change from lowest 9.955615e-03)
+Density matrix difference 9.528429e-02 between lowest-energy and newest entry
+
+
+Iteration 31: 33 Fock evaluations energy -1043.4646981338 change  0.000000e+00 DIIS error vector rms norm 1.942728e-04
+History size 10
+alpha m=-2 occupations: 1
+alpha m=-1 occupations: 1 1 1 1
+alpha m=0 occupations: 1 1 1 1 1 1 1 1 1
+alpha m=1 occupations: 1 1 1
+alpha m=2 occupations: 1
+beta m=-1 occupations: 1 1 1
+beta m=0 occupations: 1 1 1 1 1 1 1 1
+beta m=1 occupations: 1 1 1
+Switching DIIS -> L-BFGS: 5 consecutive failed DIIS iterations
+L-BFGS step (0 remaining in burst)
+L-BFGS: applying two-loop direction (history size 2).
+L-BFGS: trial sigma 1.000000e-03 t 1.000000e+00, energy -1043.4311642911, change 3.353384e-02
+L-BFGS: cubic Hermite predicts t = 2.921705e-02 (in [0, 1.000000e+00]).
+L-BFGS: trial sigma 1.000000e-03 t 2.921705e-02, energy -1043.4647236807, change -2.554684e-05
+Density matrix difference 9.563317e-02 between lowest-energy and newest entry
+
+
+Iteration 32: 35 Fock evaluations energy -1043.4647236807 change -2.554684e-05 DIIS error vector rms norm 1.401133e-04
+History size 10
+alpha m=-2 occupations: 1
+alpha m=-1 occupations: 1 1 1 1
+alpha m=0 occupations: 1 1 1 1 1 1 1 1 1
+alpha m=1 occupations: 1 1 1
+alpha m=2 occupations: 1
+beta m=-1 occupations: 1 1 1
+beta m=0 occupations: 1 1 1 1 1 1 1 1
+beta m=1 occupations: 1 1 1
+ADIIS+DIIS step
+Evaluated energy -1043.4546929912 (change from lowest 1.003069e-02)
+Density matrix difference 9.565782e-02 between lowest-energy and newest entry
+
+
+Iteration 33: 36 Fock evaluations energy -1043.4647236807 change  0.000000e+00 DIIS error vector rms norm 1.401133e-04
+History size 10
+alpha m=-2 occupations: 1
+alpha m=-1 occupations: 1 1 1 1
+alpha m=0 occupations: 1 1 1 1 1 1 1 1 1
+alpha m=1 occupations: 1 1 1
+alpha m=2 occupations: 1
+beta m=-1 occupations: 1 1 1
+beta m=0 occupations: 1 1 1 1 1 1 1 1
+beta m=1 occupations: 1 1 1
+ADIIS+DIIS step
+Evaluated energy -1043.4546840538 (change from lowest 1.003963e-02)
+Density matrix difference 9.568465e-02 between lowest-energy and newest entry
+
+
+Iteration 34: 37 Fock evaluations energy -1043.4647236807 change  0.000000e+00 DIIS error vector rms norm 1.401133e-04
+History size 10
+alpha m=-2 occupations: 1
+alpha m=-1 occupations: 1 1 1 1
+alpha m=0 occupations: 1 1 1 1 1 1 1 1 1
+alpha m=1 occupations: 1 1 1
+alpha m=2 occupations: 1
+beta m=-1 occupations: 1 1 1
+beta m=0 occupations: 1 1 1 1 1 1 1 1
+beta m=1 occupations: 1 1 1
+ADIIS+DIIS step
+Evaluated energy -1043.4546661205 (change from lowest 1.005756e-02)
+Density matrix difference 9.574378e-02 between lowest-energy and newest entry
+
+
+Iteration 35: 38 Fock evaluations energy -1043.4647236807 change  0.000000e+00 DIIS error vector rms norm 1.401133e-04
+History size 10
+alpha m=-2 occupations: 1
+alpha m=-1 occupations: 1 1 1 1
+alpha m=0 occupations: 1 1 1 1 1 1 1 1 1
+alpha m=1 occupations: 1 1 1
+alpha m=2 occupations: 1
+beta m=-1 occupations: 1 1 1
+beta m=0 occupations: 1 1 1 1 1 1 1 1
+beta m=1 occupations: 1 1 1
+ADIIS+DIIS step
+Evaluated energy -1043.4546665659 (change from lowest 1.005711e-02)
+Density matrix difference 9.574571e-02 between lowest-energy and newest entry
+
+
+Iteration 36: 39 Fock evaluations energy -1043.4647236807 change  0.000000e+00 DIIS error vector rms norm 1.401133e-04
+History size 10
+alpha m=-2 occupations: 1
+alpha m=-1 occupations: 1 1 1 1
+alpha m=0 occupations: 1 1 1 1 1 1 1 1 1
+alpha m=1 occupations: 1 1 1
+alpha m=2 occupations: 1
+beta m=-1 occupations: 1 1 1
+beta m=0 occupations: 1 1 1 1 1 1 1 1
+beta m=1 occupations: 1 1 1
+ADIIS+DIIS step
+Evaluated energy -1043.4545523260 (change from lowest 1.017135e-02)
+Density matrix difference 9.580237e-02 between lowest-energy and newest entry
+
+
+Iteration 37: 40 Fock evaluations energy -1043.4647236807 change  0.000000e+00 DIIS error vector rms norm 1.401133e-04
+History size 10
+alpha m=-2 occupations: 1
+alpha m=-1 occupations: 1 1 1 1
+alpha m=0 occupations: 1 1 1 1 1 1 1 1 1
+alpha m=1 occupations: 1 1 1
+alpha m=2 occupations: 1
+beta m=-1 occupations: 1 1 1
+beta m=0 occupations: 1 1 1 1 1 1 1 1
+beta m=1 occupations: 1 1 1
+Switching DIIS -> L-BFGS: 5 consecutive failed DIIS iterations
+L-BFGS step (0 remaining in burst)
+L-BFGS: applying two-loop direction (history size 3).
+L-BFGS: trial sigma 1.000000e-03 t 6.513475e-01, energy -1039.3271101446, change 4.137614e+00
+L-BFGS: cubic Hermite predicts t = 4.477499e-04 (in [0, 6.513475e-01]).
+L-BFGS: trial sigma 1.000000e-03 t 4.477499e-04, energy -1043.4647270875, change -3.406776e-06
+Density matrix difference 9.582843e-02 between lowest-energy and newest entry
+
+
+Iteration 38: 42 Fock evaluations energy -1043.4647270875 change -3.406776e-06 DIIS error vector rms norm 1.342621e-04
+History size 10
+alpha m=-2 occupations: 1
+alpha m=-1 occupations: 1 1 1 1
+alpha m=0 occupations: 1 1 1 1 1 1 1 1 1
+alpha m=1 occupations: 1 1 1
+alpha m=2 occupations: 1
+beta m=-1 occupations: 1 1 1
+beta m=0 occupations: 1 1 1 1 1 1 1 1
+beta m=1 occupations: 1 1 1
+ADIIS+DIIS step
+Evaluated energy -1043.4545319048 (change from lowest 1.019518e-02)
+Density matrix difference 9.587650e-02 between lowest-energy and newest entry
+
+
+Iteration 39: 43 Fock evaluations energy -1043.4647270875 change  0.000000e+00 DIIS error vector rms norm 1.342621e-04
+History size 10
+alpha m=-2 occupations: 1
+alpha m=-1 occupations: 1 1 1 1
+alpha m=0 occupations: 1 1 1 1 1 1 1 1 1
+alpha m=1 occupations: 1 1 1
+alpha m=2 occupations: 1
+beta m=-1 occupations: 1 1 1
+beta m=0 occupations: 1 1 1 1 1 1 1 1
+beta m=1 occupations: 1 1 1
+ADIIS+DIIS step
+Evaluated energy -1043.4545450457 (change from lowest 1.018204e-02)
+Density matrix difference 9.585482e-02 between lowest-energy and newest entry
+
+
+Iteration 40: 44 Fock evaluations energy -1043.4647270875 change  0.000000e+00 DIIS error vector rms norm 1.342621e-04
+History size 10
+alpha m=-2 occupations: 1
+alpha m=-1 occupations: 1 1 1 1
+alpha m=0 occupations: 1 1 1 1 1 1 1 1 1
+alpha m=1 occupations: 1 1 1
+alpha m=2 occupations: 1
+beta m=-1 occupations: 1 1 1
+beta m=0 occupations: 1 1 1 1 1 1 1 1
+beta m=1 occupations: 1 1 1
+ADIIS+DIIS step
+Evaluated energy -1043.4609728743 (change from lowest 3.754213e-03)
+Density matrix difference 7.573058e-03 between lowest-energy and newest entry
+
+
+Iteration 41: 45 Fock evaluations energy -1043.4647270875 change  0.000000e+00 DIIS error vector rms norm 1.342621e-04
+History size 10
+alpha m=-2 occupations: 1
+alpha m=-1 occupations: 1 1 1 1
+alpha m=0 occupations: 1 1 1 1 1 1 1 1 1
+alpha m=1 occupations: 1 1 1
+alpha m=2 occupations: 1
+beta m=-1 occupations: 1 1 1
+beta m=0 occupations: 1 1 1 1 1 1 1 1
+beta m=1 occupations: 1 1 1
+ADIIS+DIIS step
+Evaluated energy -1043.4544680683 (change from lowest 1.025902e-02)
+Density matrix difference 9.567530e-02 between lowest-energy and newest entry
+
+
+Iteration 42: 46 Fock evaluations energy -1043.4647270875 change  0.000000e+00 DIIS error vector rms norm 1.342621e-04
+History size 10
+alpha m=-2 occupations: 1
+alpha m=-1 occupations: 1 1 1 1
+alpha m=0 occupations: 1 1 1 1 1 1 1 1 1
+alpha m=1 occupations: 1 1 1
+alpha m=2 occupations: 1
+beta m=-1 occupations: 1 1 1
+beta m=0 occupations: 1 1 1 1 1 1 1 1
+beta m=1 occupations: 1 1 1
+ADIIS+DIIS step
+Evaluated energy -1043.4544742640 (change from lowest 1.025282e-02)
+Density matrix difference 9.567765e-02 between lowest-energy and newest entry
+
+
+Iteration 43: 47 Fock evaluations energy -1043.4647270875 change  0.000000e+00 DIIS error vector rms norm 1.342621e-04
+History size 10
+alpha m=-2 occupations: 1
+alpha m=-1 occupations: 1 1 1 1
+alpha m=0 occupations: 1 1 1 1 1 1 1 1 1
+alpha m=1 occupations: 1 1 1
+alpha m=2 occupations: 1
+beta m=-1 occupations: 1 1 1
+beta m=0 occupations: 1 1 1 1 1 1 1 1
+beta m=1 occupations: 1 1 1
+Switching DIIS -> L-BFGS: 5 consecutive failed DIIS iterations
+L-BFGS step (0 remaining in burst)
+L-BFGS: applying two-loop direction (history size 4).
+L-BFGS: trial sigma 1.000000e-03 t 1.000000e+00, energy -1039.3523288103, change 4.112398e+00
+L-BFGS: cubic Hermite predicts t = 2.751528e-04 (in [0, 1.000000e+00]).
+L-BFGS: trial sigma 1.000000e-03 t 2.751528e-04, energy -1043.4647276969, change -6.094515e-07
+Density matrix difference 9.569264e-02 between lowest-energy and newest entry
+
+
+Iteration 44: 49 Fock evaluations energy -1043.4647276969 change -6.094515e-07 DIIS error vector rms norm 1.312397e-04
+History size 10
+alpha m=-2 occupations: 1
+alpha m=-1 occupations: 1 1 1 1
+alpha m=0 occupations: 1 1 1 1 1 1 1 1 1
+alpha m=1 occupations: 1 1 1
+alpha m=2 occupations: 1
+beta m=-1 occupations: 1 1 1
+beta m=0 occupations: 1 1 1 1 1 1 1 1
+beta m=1 occupations: 1 1 1
+ADIIS+DIIS step
+Evaluated energy -1043.4544724244 (change from lowest 1.025527e-02)
+Density matrix difference 9.569409e-02 between lowest-energy and newest entry
+
+
+Iteration 45: 50 Fock evaluations energy -1043.4647276969 change  0.000000e+00 DIIS error vector rms norm 1.312397e-04
+History size 10
+alpha m=-2 occupations: 1
+alpha m=-1 occupations: 1 1 1 1
+alpha m=0 occupations: 1 1 1 1 1 1 1 1 1
+alpha m=1 occupations: 1 1 1
+alpha m=2 occupations: 1
+beta m=-1 occupations: 1 1 1
+beta m=0 occupations: 1 1 1 1 1 1 1 1
+beta m=1 occupations: 1 1 1
+ADIIS+DIIS step
+Evaluated energy -1043.4544721206 (change from lowest 1.025558e-02)
+Density matrix difference 9.569444e-02 between lowest-energy and newest entry
+
+
+Iteration 46: 51 Fock evaluations energy -1043.4647276969 change  0.000000e+00 DIIS error vector rms norm 1.312397e-04
+History size 10
+alpha m=-2 occupations: 1
+alpha m=-1 occupations: 1 1 1 1
+alpha m=0 occupations: 1 1 1 1 1 1 1 1 1
+alpha m=1 occupations: 1 1 1
+alpha m=2 occupations: 1
+beta m=-1 occupations: 1 1 1
+beta m=0 occupations: 1 1 1 1 1 1 1 1
+beta m=1 occupations: 1 1 1
+ADIIS+DIIS step
+Evaluated energy -1043.4544720946 (change from lowest 1.025560e-02)
+Density matrix difference 9.569453e-02 between lowest-energy and newest entry
+
+
+Iteration 47: 52 Fock evaluations energy -1043.4647276969 change  0.000000e+00 DIIS error vector rms norm 1.312397e-04
+History size 10
+alpha m=-2 occupations: 1
+alpha m=-1 occupations: 1 1 1 1
+alpha m=0 occupations: 1 1 1 1 1 1 1 1 1
+alpha m=1 occupations: 1 1 1
+alpha m=2 occupations: 1
+beta m=-1 occupations: 1 1 1
+beta m=0 occupations: 1 1 1 1 1 1 1 1
+beta m=1 occupations: 1 1 1
+ADIIS+DIIS step
+Evaluated energy -1043.4544704481 (change from lowest 1.025725e-02)
+Density matrix difference 9.569453e-02 between lowest-energy and newest entry
+
+
+Iteration 48: 53 Fock evaluations energy -1043.4647276969 change  0.000000e+00 DIIS error vector rms norm 1.312397e-04
+History size 10
+alpha m=-2 occupations: 1
+alpha m=-1 occupations: 1 1 1 1
+alpha m=0 occupations: 1 1 1 1 1 1 1 1 1
+alpha m=1 occupations: 1 1 1
+alpha m=2 occupations: 1
+beta m=-1 occupations: 1 1 1
+beta m=0 occupations: 1 1 1 1 1 1 1 1
+beta m=1 occupations: 1 1 1
+ADIIS+DIIS step
+Evaluated energy -1043.4544729734 (change from lowest 1.025472e-02)
+Density matrix difference 9.569722e-02 between lowest-energy and newest entry
+
+
+Iteration 49: 54 Fock evaluations energy -1043.4647276969 change  0.000000e+00 DIIS error vector rms norm 1.312397e-04
+History size 10
+alpha m=-2 occupations: 1
+alpha m=-1 occupations: 1 1 1 1
+alpha m=0 occupations: 1 1 1 1 1 1 1 1 1
+alpha m=1 occupations: 1 1 1
+alpha m=2 occupations: 1
+beta m=-1 occupations: 1 1 1
+beta m=0 occupations: 1 1 1 1 1 1 1 1
+beta m=1 occupations: 1 1 1
+Switching DIIS -> L-BFGS: 5 consecutive failed DIIS iterations
+L-BFGS step (0 remaining in burst)
+L-BFGS: curvature condition violated (y.s = -1.569226e-03), pair dropped.
+L-BFGS: applying two-loop direction (history size 4).
+L-BFGS: trial sigma 1.000000e-03 t 5.795158e-01, energy -1039.2310177340, change 4.233710e+00
+L-BFGS: cubic Hermite predicts t = 2.765850e-04 (in [0, 5.795158e-01]).
+L-BFGS: trial sigma 1.000000e-03 t 2.765850e-04, energy -1043.4647294675, change -1.770590e-06
+Density matrix difference 9.570517e-02 between lowest-energy and newest entry
+
+
+Iteration 50: 56 Fock evaluations energy -1043.4647294675 change -1.770590e-06 DIIS error vector rms norm 1.285575e-04
+History size 10
+alpha m=-2 occupations: 1
+alpha m=-1 occupations: 1 1 1 1
+alpha m=0 occupations: 1 1 1 1 1 1 1 1 1
+alpha m=1 occupations: 1 1 1
+alpha m=2 occupations: 1
+beta m=-1 occupations: 1 1 1
+beta m=0 occupations: 1 1 1 1 1 1 1 1
+beta m=1 occupations: 1 1 1
+ADIIS+DIIS step
+Evaluated energy -1043.4544507977 (change from lowest 1.027867e-02)
+Density matrix difference 9.570535e-02 between lowest-energy and newest entry
+
+
+Iteration 51: 57 Fock evaluations energy -1043.4647294675 change  0.000000e+00 DIIS error vector rms norm 1.285575e-04
+History size 10
+alpha m=-2 occupations: 1
+alpha m=-1 occupations: 1 1 1 1
+alpha m=0 occupations: 1 1 1 1 1 1 1 1 1
+alpha m=1 occupations: 1 1 1
+alpha m=2 occupations: 1
+beta m=-1 occupations: 1 1 1
+beta m=0 occupations: 1 1 1 1 1 1 1 1
+beta m=1 occupations: 1 1 1
+ADIIS+DIIS step
+Evaluated energy -1043.4616601262 (change from lowest 3.069341e-03)
+Density matrix difference 7.004156e-03 between lowest-energy and newest entry
+
+
+Iteration 52: 58 Fock evaluations energy -1043.4647294675 change  0.000000e+00 DIIS error vector rms norm 1.285575e-04
+History size 10
+alpha m=-2 occupations: 1
+alpha m=-1 occupations: 1 1 1 1
+alpha m=0 occupations: 1 1 1 1 1 1 1 1 1
+alpha m=1 occupations: 1 1 1
+alpha m=2 occupations: 1
+beta m=-1 occupations: 1 1 1
+beta m=0 occupations: 1 1 1 1 1 1 1 1
+beta m=1 occupations: 1 1 1
+ADIIS+DIIS step
+Evaluated energy -1043.4544417609 (change from lowest 1.028771e-02)
+Density matrix difference 9.571516e-02 between lowest-energy and newest entry
+
+
+Iteration 53: 59 Fock evaluations energy -1043.4647294675 change  0.000000e+00 DIIS error vector rms norm 1.285575e-04
+History size 10
+alpha m=-2 occupations: 1
+alpha m=-1 occupations: 1 1 1 1
+alpha m=0 occupations: 1 1 1 1 1 1 1 1 1
+alpha m=1 occupations: 1 1 1
+alpha m=2 occupations: 1
+beta m=-1 occupations: 1 1 1
+beta m=0 occupations: 1 1 1 1 1 1 1 1
+beta m=1 occupations: 1 1 1
+ADIIS+DIIS step
+Evaluated energy -1043.4544417741 (change from lowest 1.028769e-02)
+Density matrix difference 9.571516e-02 between lowest-energy and newest entry
+
+
+Iteration 54: 60 Fock evaluations energy -1043.4647294675 change  0.000000e+00 DIIS error vector rms norm 1.285575e-04
+History size 10
+alpha m=-2 occupations: 1
+alpha m=-1 occupations: 1 1 1 1
+alpha m=0 occupations: 1 1 1 1 1 1 1 1 1
+alpha m=1 occupations: 1 1 1
+alpha m=2 occupations: 1
+beta m=-1 occupations: 1 1 1
+beta m=0 occupations: 1 1 1 1 1 1 1 1
+beta m=1 occupations: 1 1 1
+ADIIS+DIIS step
+Evaluated energy -1043.4544266681 (change from lowest 1.030280e-02)
+Density matrix difference 9.571795e-02 between lowest-energy and newest entry
+
+
+Iteration 55: 61 Fock evaluations energy -1043.4647294675 change  0.000000e+00 DIIS error vector rms norm 1.285575e-04
+History size 10
+alpha m=-2 occupations: 1
+alpha m=-1 occupations: 1 1 1 1
+alpha m=0 occupations: 1 1 1 1 1 1 1 1 1
+alpha m=1 occupations: 1 1 1
+alpha m=2 occupations: 1
+beta m=-1 occupations: 1 1 1
+beta m=0 occupations: 1 1 1 1 1 1 1 1
+beta m=1 occupations: 1 1 1
+Switching DIIS -> L-BFGS: 5 consecutive failed DIIS iterations
+L-BFGS step (0 remaining in burst)
+L-BFGS: applying two-loop direction (history size 5).
+L-BFGS: trial sigma 1.000000e-03 t 1.000000e+00, energy -1043.4337345230, change 3.099494e-02
+L-BFGS: cubic Hermite predicts t = 1.240098e-02 (in [0, 1.000000e+00]).
+L-BFGS: trial sigma 1.000000e-03 t 1.240098e-02, energy -1043.4647332596, change -3.792054e-06
+Density matrix difference 9.569670e-02 between lowest-energy and newest entry
+
+
+Iteration 56: 63 Fock evaluations energy -1043.4647332596 change -3.792054e-06 DIIS error vector rms norm 1.157638e-04
+History size 10
+alpha m=-2 occupations: 1
+alpha m=-1 occupations: 1 1 1 1
+alpha m=0 occupations: 1 1 1 1 1 1 1 1 1
+alpha m=1 occupations: 1 1 1
+alpha m=2 occupations: 1
+beta m=-1 occupations: 1 1 1
+beta m=0 occupations: 1 1 1 1 1 1 1 1
+beta m=1 occupations: 1 1 1
+ADIIS+DIIS step
+Evaluated energy -1043.4544273455 (change from lowest 1.030591e-02)
+Density matrix difference 9.569638e-02 between lowest-energy and newest entry
+
+
+Iteration 57: 64 Fock evaluations energy -1043.4647332596 change  0.000000e+00 DIIS error vector rms norm 1.157638e-04
+History size 10
+alpha m=-2 occupations: 1
+alpha m=-1 occupations: 1 1 1 1
+alpha m=0 occupations: 1 1 1 1 1 1 1 1 1
+alpha m=1 occupations: 1 1 1
+alpha m=2 occupations: 1
+beta m=-1 occupations: 1 1 1
+beta m=0 occupations: 1 1 1 1 1 1 1 1
+beta m=1 occupations: 1 1 1
+ADIIS+DIIS step
+Evaluated energy -1043.4544273936 (change from lowest 1.030587e-02)
+Density matrix difference 9.569637e-02 between lowest-energy and newest entry
+
+
+Iteration 58: 65 Fock evaluations energy -1043.4647332596 change  0.000000e+00 DIIS error vector rms norm 1.157638e-04
+History size 10
+alpha m=-2 occupations: 1
+alpha m=-1 occupations: 1 1 1 1
+alpha m=0 occupations: 1 1 1 1 1 1 1 1 1
+alpha m=1 occupations: 1 1 1
+alpha m=2 occupations: 1
+beta m=-1 occupations: 1 1 1
+beta m=0 occupations: 1 1 1 1 1 1 1 1
+beta m=1 occupations: 1 1 1
+ADIIS+DIIS step
+Evaluated energy -1043.4544274229 (change from lowest 1.030584e-02)
+Density matrix difference 9.569637e-02 between lowest-energy and newest entry
+
+
+Iteration 59: 66 Fock evaluations energy -1043.4647332596 change  0.000000e+00 DIIS error vector rms norm 1.157638e-04
+History size 10
+alpha m=-2 occupations: 1
+alpha m=-1 occupations: 1 1 1 1
+alpha m=0 occupations: 1 1 1 1 1 1 1 1 1
+alpha m=1 occupations: 1 1 1
+alpha m=2 occupations: 1
+beta m=-1 occupations: 1 1 1
+beta m=0 occupations: 1 1 1 1 1 1 1 1
+beta m=1 occupations: 1 1 1
+ADIIS+DIIS step
+Evaluated energy -1043.4544274665 (change from lowest 1.030579e-02)
+Density matrix difference 9.569636e-02 between lowest-energy and newest entry
+
+
+Iteration 60: 67 Fock evaluations energy -1043.4647332596 change  0.000000e+00 DIIS error vector rms norm 1.157638e-04
+History size 10
+alpha m=-2 occupations: 1
+alpha m=-1 occupations: 1 1 1 1
+alpha m=0 occupations: 1 1 1 1 1 1 1 1 1
+alpha m=1 occupations: 1 1 1
+alpha m=2 occupations: 1
+beta m=-1 occupations: 1 1 1
+beta m=0 occupations: 1 1 1 1 1 1 1 1
+beta m=1 occupations: 1 1 1
+ADIIS+DIIS step
+Evaluated energy -1043.4543548664 (change from lowest 1.037839e-02)
+Density matrix difference 9.573776e-02 between lowest-energy and newest entry
+
+
+Iteration 61: 68 Fock evaluations energy -1043.4647332596 change  0.000000e+00 DIIS error vector rms norm 1.157638e-04
+History size 10
+alpha m=-2 occupations: 1
+alpha m=-1 occupations: 1 1 1 1
+alpha m=0 occupations: 1 1 1 1 1 1 1 1 1
+alpha m=1 occupations: 1 1 1
+alpha m=2 occupations: 1
+beta m=-1 occupations: 1 1 1
+beta m=0 occupations: 1 1 1 1 1 1 1 1
+beta m=1 occupations: 1 1 1
+Switching DIIS -> L-BFGS: 5 consecutive failed DIIS iterations
+L-BFGS step (0 remaining in burst)
+L-BFGS: applying two-loop direction (history size 6).
+L-BFGS: trial sigma 1.000000e-03 t 1.000000e+00, energy -1043.3808325115, change 8.390075e-02
+L-BFGS: cubic Hermite predicts t = 9.386655e-03 (in [0, 1.000000e+00]).
+L-BFGS: trial sigma 1.000000e-03 t 9.386655e-03, energy -1043.4647390144, change -5.754801e-06
+Density matrix difference 9.585152e-02 between lowest-energy and newest entry
+
+
+Iteration 62: 70 Fock evaluations energy -1043.4647390144 change -5.754801e-06 DIIS error vector rms norm 1.021230e-04
+History size 10
+alpha m=-2 occupations: 1
+alpha m=-1 occupations: 1 1 1 1
+alpha m=0 occupations: 1 1 1 1 1 1 1 1 1
+alpha m=1 occupations: 1 1 1
+alpha m=2 occupations: 1
+beta m=-1 occupations: 1 1 1
+beta m=0 occupations: 1 1 1 1 1 1 1 1
+beta m=1 occupations: 1 1 1
+ADIIS+DIIS step
+Evaluated energy -1043.4546365130 (change from lowest 1.010250e-02)
+Density matrix difference 9.597604e-02 between lowest-energy and newest entry
+
+
+Iteration 63: 71 Fock evaluations energy -1043.4647390144 change  0.000000e+00 DIIS error vector rms norm 1.021230e-04
+History size 10
+alpha m=-2 occupations: 1
+alpha m=-1 occupations: 1 1 1 1
+alpha m=0 occupations: 1 1 1 1 1 1 1 1 1
+alpha m=1 occupations: 1 1 1
+alpha m=2 occupations: 1
+beta m=-1 occupations: 1 1 1
+beta m=0 occupations: 1 1 1 1 1 1 1 1
+beta m=1 occupations: 1 1 1
+ADIIS+DIIS step
+Evaluated energy -1043.4546361754 (change from lowest 1.010284e-02)
+Density matrix difference 9.593887e-02 between lowest-energy and newest entry
+
+
+Iteration 64: 72 Fock evaluations energy -1043.4647390144 change  0.000000e+00 DIIS error vector rms norm 1.021230e-04
+History size 10
+alpha m=-2 occupations: 1
+alpha m=-1 occupations: 1 1 1 1
+alpha m=0 occupations: 1 1 1 1 1 1 1 1 1
+alpha m=1 occupations: 1 1 1
+alpha m=2 occupations: 1
+beta m=-1 occupations: 1 1 1
+beta m=0 occupations: 1 1 1 1 1 1 1 1
+beta m=1 occupations: 1 1 1
+ADIIS+DIIS step
+Evaluated energy -1043.4546353242 (change from lowest 1.010369e-02)
+Density matrix difference 9.592281e-02 between lowest-energy and newest entry
+
+
+Iteration 65: 73 Fock evaluations energy -1043.4647390144 change  0.000000e+00 DIIS error vector rms norm 1.021230e-04
+History size 10
+alpha m=-2 occupations: 1
+alpha m=-1 occupations: 1 1 1 1
+alpha m=0 occupations: 1 1 1 1 1 1 1 1 1
+alpha m=1 occupations: 1 1 1
+alpha m=2 occupations: 1
+beta m=-1 occupations: 1 1 1
+beta m=0 occupations: 1 1 1 1 1 1 1 1
+beta m=1 occupations: 1 1 1
+ADIIS+DIIS step
+Evaluated energy -1043.4546368619 (change from lowest 1.010215e-02)
+Density matrix difference 9.591423e-02 between lowest-energy and newest entry
+
+
+Iteration 66: 74 Fock evaluations energy -1043.4647390144 change  0.000000e+00 DIIS error vector rms norm 1.021230e-04
+History size 10
+alpha m=-2 occupations: 1
+alpha m=-1 occupations: 1 1 1 1
+alpha m=0 occupations: 1 1 1 1 1 1 1 1 1
+alpha m=1 occupations: 1 1 1
+alpha m=2 occupations: 1
+beta m=-1 occupations: 1 1 1
+beta m=0 occupations: 1 1 1 1 1 1 1 1
+beta m=1 occupations: 1 1 1
+ADIIS+DIIS step
+Evaluated energy -1043.4547396186 (change from lowest 9.999396e-03)
+Density matrix difference 9.596357e-02 between lowest-energy and newest entry
+
+
+Iteration 67: 75 Fock evaluations energy -1043.4647390144 change  0.000000e+00 DIIS error vector rms norm 1.021230e-04
+History size 10
+alpha m=-2 occupations: 1
+alpha m=-1 occupations: 1 1 1 1
+alpha m=0 occupations: 1 1 1 1 1 1 1 1 1
+alpha m=1 occupations: 1 1 1
+alpha m=2 occupations: 1
+beta m=-1 occupations: 1 1 1
+beta m=0 occupations: 1 1 1 1 1 1 1 1
+beta m=1 occupations: 1 1 1
+Switching DIIS -> L-BFGS: 5 consecutive failed DIIS iterations
+L-BFGS step (0 remaining in burst)
+L-BFGS: applying two-loop direction (history size 7).
+L-BFGS: trial sigma 1.000000e-03 t 1.000000e+00, energy -1041.7679939884, change 1.696745e+00
+L-BFGS: cubic Hermite predicts t = 4.936697e-04 (in [0, 1.000000e+00]).
+L-BFGS: trial sigma 1.000000e-03 t 4.936697e-04, energy -1043.4647395754, change -5.610423e-07
+Density matrix difference 9.595425e-02 between lowest-energy and newest entry
+
+
+Iteration 68: 77 Fock evaluations energy -1043.4647395754 change -5.610423e-07 DIIS error vector rms norm 1.014304e-04
+History size 10
+alpha m=-2 occupations: 1
+alpha m=-1 occupations: 1 1 1 1
+alpha m=0 occupations: 1 1 1 1 1 1 1 1 1
+alpha m=1 occupations: 1 1 1
+alpha m=2 occupations: 1
+beta m=-1 occupations: 1 1 1
+beta m=0 occupations: 1 1 1 1 1 1 1 1
+beta m=1 occupations: 1 1 1
+ADIIS+DIIS step
+Evaluated energy -1043.4546952912 (change from lowest 1.004428e-02)
+Density matrix difference 9.593337e-02 between lowest-energy and newest entry
+
+
+Iteration 69: 78 Fock evaluations energy -1043.4647395754 change  0.000000e+00 DIIS error vector rms norm 1.014304e-04
+History size 10
+alpha m=-2 occupations: 1
+alpha m=-1 occupations: 1 1 1 1
+alpha m=0 occupations: 1 1 1 1 1 1 1 1 1
+alpha m=1 occupations: 1 1 1
+alpha m=2 occupations: 1
+beta m=-1 occupations: 1 1 1
+beta m=0 occupations: 1 1 1 1 1 1 1 1
+beta m=1 occupations: 1 1 1
+ADIIS+DIIS step
+Evaluated energy -1043.4547110847 (change from lowest 1.002849e-02)
+Density matrix difference 9.595200e-02 between lowest-energy and newest entry
+
+
+Iteration 70: 79 Fock evaluations energy -1043.4647395754 change  0.000000e+00 DIIS error vector rms norm 1.014304e-04
+History size 10
+alpha m=-2 occupations: 1
+alpha m=-1 occupations: 1 1 1 1
+alpha m=0 occupations: 1 1 1 1 1 1 1 1 1
+alpha m=1 occupations: 1 1 1
+alpha m=2 occupations: 1
+beta m=-1 occupations: 1 1 1
+beta m=0 occupations: 1 1 1 1 1 1 1 1
+beta m=1 occupations: 1 1 1
+ADIIS+DIIS step
+Evaluated energy -1043.4547317030 (change from lowest 1.000787e-02)
+Density matrix difference 9.598164e-02 between lowest-energy and newest entry
+
+
+Iteration 71: 80 Fock evaluations energy -1043.4647395754 change  0.000000e+00 DIIS error vector rms norm 1.014304e-04
+History size 10
+alpha m=-2 occupations: 1
+alpha m=-1 occupations: 1 1 1 1
+alpha m=0 occupations: 1 1 1 1 1 1 1 1 1
+alpha m=1 occupations: 1 1 1
+alpha m=2 occupations: 1
+beta m=-1 occupations: 1 1 1
+beta m=0 occupations: 1 1 1 1 1 1 1 1
+beta m=1 occupations: 1 1 1
+ADIIS+DIIS step
+Evaluated energy -1043.4547749579 (change from lowest 9.964618e-03)
+Density matrix difference 9.603344e-02 between lowest-energy and newest entry
+
+
+Iteration 72: 81 Fock evaluations energy -1043.4647395754 change  0.000000e+00 DIIS error vector rms norm 1.014304e-04
+History size 10
+alpha m=-2 occupations: 1
+alpha m=-1 occupations: 1 1 1 1
+alpha m=0 occupations: 1 1 1 1 1 1 1 1 1
+alpha m=1 occupations: 1 1 1
+alpha m=2 occupations: 1
+beta m=-1 occupations: 1 1 1
+beta m=0 occupations: 1 1 1 1 1 1 1 1
+beta m=1 occupations: 1 1 1
+ADIIS+DIIS step
+Evaluated energy -1043.4547468936 (change from lowest 9.992682e-03)
+Density matrix difference 9.600715e-02 between lowest-energy and newest entry
+
+
+Iteration 73: 82 Fock evaluations energy -1043.4647395754 change  0.000000e+00 DIIS error vector rms norm 1.014304e-04
+History size 10
+alpha m=-2 occupations: 1
+alpha m=-1 occupations: 1 1 1 1
+alpha m=0 occupations: 1 1 1 1 1 1 1 1 1
+alpha m=1 occupations: 1 1 1
+alpha m=2 occupations: 1
+beta m=-1 occupations: 1 1 1
+beta m=0 occupations: 1 1 1 1 1 1 1 1
+beta m=1 occupations: 1 1 1
+Switching DIIS -> L-BFGS: 5 consecutive failed DIIS iterations
+L-BFGS step (0 remaining in burst)
+L-BFGS: applying two-loop direction (history size 8).
+L-BFGS: trial sigma 1.000000e-03 t 1.000000e+00, energy -1043.4419552449, change 2.278433e-02
+L-BFGS: cubic Hermite predicts t = 6.172974e-03 (in [0, 1.000000e+00]).
+L-BFGS: trial sigma 1.000000e-03 t 6.172974e-03, energy -1043.4647403918, change -8.164457e-07
+Density matrix difference 9.604327e-02 between lowest-energy and newest entry
+
+
+Iteration 74: 84 Fock evaluations energy -1043.4647403918 change -8.164457e-07 DIIS error vector rms norm 1.012245e-04
+History size 10
+alpha m=-2 occupations: 1
+alpha m=-1 occupations: 1 1 1 1
+alpha m=0 occupations: 1 1 1 1 1 1 1 1 1
+alpha m=1 occupations: 1 1 1
+alpha m=2 occupations: 1
+beta m=-1 occupations: 1 1 1
+beta m=0 occupations: 1 1 1 1 1 1 1 1
+beta m=1 occupations: 1 1 1
+ADIIS+DIIS step
+Evaluated energy -1043.4547137113 (change from lowest 1.002668e-02)
+Density matrix difference 9.603589e-02 between lowest-energy and newest entry
+
+
+Iteration 75: 85 Fock evaluations energy -1043.4647403918 change  0.000000e+00 DIIS error vector rms norm 1.012245e-04
+History size 10
+alpha m=-2 occupations: 1
+alpha m=-1 occupations: 1 1 1 1
+alpha m=0 occupations: 1 1 1 1 1 1 1 1 1
+alpha m=1 occupations: 1 1 1
+alpha m=2 occupations: 1
+beta m=-1 occupations: 1 1 1
+beta m=0 occupations: 1 1 1 1 1 1 1 1
+beta m=1 occupations: 1 1 1
+ADIIS+DIIS step
+Evaluated energy -1043.4547147146 (change from lowest 1.002568e-02)
+Density matrix difference 9.603539e-02 between lowest-energy and newest entry
+
+
+Iteration 76: 86 Fock evaluations energy -1043.4647403918 change  0.000000e+00 DIIS error vector rms norm 1.012245e-04
+History size 10
+alpha m=-2 occupations: 1
+alpha m=-1 occupations: 1 1 1 1
+alpha m=0 occupations: 1 1 1 1 1 1 1 1 1
+alpha m=1 occupations: 1 1 1
+alpha m=2 occupations: 1
+beta m=-1 occupations: 1 1 1
+beta m=0 occupations: 1 1 1 1 1 1 1 1
+beta m=1 occupations: 1 1 1
+ADIIS+DIIS step
+Evaluated energy -1043.4547175610 (change from lowest 1.002283e-02)
+Density matrix difference 9.603702e-02 between lowest-energy and newest entry
+
+
+Iteration 77: 87 Fock evaluations energy -1043.4647403918 change  0.000000e+00 DIIS error vector rms norm 1.012245e-04
+History size 10
+alpha m=-2 occupations: 1
+alpha m=-1 occupations: 1 1 1 1
+alpha m=0 occupations: 1 1 1 1 1 1 1 1 1
+alpha m=1 occupations: 1 1 1
+alpha m=2 occupations: 1
+beta m=-1 occupations: 1 1 1
+beta m=0 occupations: 1 1 1 1 1 1 1 1
+beta m=1 occupations: 1 1 1
+ADIIS+DIIS step
+Evaluated energy -1043.4547180419 (change from lowest 1.002235e-02)
+Density matrix difference 9.603751e-02 between lowest-energy and newest entry
+
+
+Iteration 78: 88 Fock evaluations energy -1043.4647403918 change  0.000000e+00 DIIS error vector rms norm 1.012245e-04
+History size 10
+alpha m=-2 occupations: 1
+alpha m=-1 occupations: 1 1 1 1
+alpha m=0 occupations: 1 1 1 1 1 1 1 1 1
+alpha m=1 occupations: 1 1 1
+alpha m=2 occupations: 1
+beta m=-1 occupations: 1 1 1
+beta m=0 occupations: 1 1 1 1 1 1 1 1
+beta m=1 occupations: 1 1 1
+ADIIS+DIIS step
+Evaluated energy -1043.4546928679 (change from lowest 1.004752e-02)
+Density matrix difference 9.603294e-02 between lowest-energy and newest entry
+
+
+Iteration 79: 89 Fock evaluations energy -1043.4647403918 change  0.000000e+00 DIIS error vector rms norm 1.012245e-04
+History size 10
+alpha m=-2 occupations: 1
+alpha m=-1 occupations: 1 1 1 1
+alpha m=0 occupations: 1 1 1 1 1 1 1 1 1
+alpha m=1 occupations: 1 1 1
+alpha m=2 occupations: 1
+beta m=-1 occupations: 1 1 1
+beta m=0 occupations: 1 1 1 1 1 1 1 1
+beta m=1 occupations: 1 1 1
+Switching DIIS -> L-BFGS: 5 consecutive failed DIIS iterations
+L-BFGS step (0 remaining in burst)
+L-BFGS: applying two-loop direction (history size 9).
+L-BFGS: trial sigma 1.000000e-03 t 1.000000e+00, energy -1043.2892761027, change 1.754643e-01
+L-BFGS: cubic Hermite predicts t = 9.271055e-04 (in [0, 1.000000e+00]).
+L-BFGS: trial sigma 1.000000e-03 t 9.271055e-04, energy -1043.4647405004, change -1.085584e-07
+Density matrix difference 9.603186e-02 between lowest-energy and newest entry
+
+
+Iteration 80: 91 Fock evaluations energy -1043.4647405004 change -1.085584e-07 DIIS error vector rms norm 1.002927e-04
+History size 10
+alpha m=-2 occupations: 1
+alpha m=-1 occupations: 1 1 1 1
+alpha m=0 occupations: 1 1 1 1 1 1 1 1 1
+alpha m=1 occupations: 1 1 1
+alpha m=2 occupations: 1
+beta m=-1 occupations: 1 1 1
+beta m=0 occupations: 1 1 1 1 1 1 1 1
+beta m=1 occupations: 1 1 1
+ADIIS+DIIS step
+Evaluated energy -1043.4546613771 (change from lowest 1.007912e-02)
+Density matrix difference 9.598139e-02 between lowest-energy and newest entry
+
+
+Iteration 81: 92 Fock evaluations energy -1043.4647405004 change  0.000000e+00 DIIS error vector rms norm 1.002927e-04
+History size 10
+alpha m=-2 occupations: 1
+alpha m=-1 occupations: 1 1 1 1
+alpha m=0 occupations: 1 1 1 1 1 1 1 1 1
+alpha m=1 occupations: 1 1 1
+alpha m=2 occupations: 1
+beta m=-1 occupations: 1 1 1
+beta m=0 occupations: 1 1 1 1 1 1 1 1
+beta m=1 occupations: 1 1 1
+ADIIS+DIIS step
+Evaluated energy -1043.4546609299 (change from lowest 1.007957e-02)
+Density matrix difference 9.598117e-02 between lowest-energy and newest entry
+
+
+Iteration 82: 93 Fock evaluations energy -1043.4647405004 change  0.000000e+00 DIIS error vector rms norm 1.002927e-04
+History size 10
+alpha m=-2 occupations: 1
+alpha m=-1 occupations: 1 1 1 1
+alpha m=0 occupations: 1 1 1 1 1 1 1 1 1
+alpha m=1 occupations: 1 1 1
+alpha m=2 occupations: 1
+beta m=-1 occupations: 1 1 1
+beta m=0 occupations: 1 1 1 1 1 1 1 1
+beta m=1 occupations: 1 1 1
+ADIIS+DIIS step
+Evaluated energy -1043.4546602152 (change from lowest 1.008029e-02)
+Density matrix difference 9.598141e-02 between lowest-energy and newest entry
+
+
+Iteration 83: 94 Fock evaluations energy -1043.4647405004 change  0.000000e+00 DIIS error vector rms norm 1.002927e-04
+History size 10
+alpha m=-2 occupations: 1
+alpha m=-1 occupations: 1 1 1 1
+alpha m=0 occupations: 1 1 1 1 1 1 1 1 1
+alpha m=1 occupations: 1 1 1
+alpha m=2 occupations: 1
+beta m=-1 occupations: 1 1 1
+beta m=0 occupations: 1 1 1 1 1 1 1 1
+beta m=1 occupations: 1 1 1
+ADIIS+DIIS step
+Evaluated energy -1043.4546599083 (change from lowest 1.008059e-02)
+Density matrix difference 9.598121e-02 between lowest-energy and newest entry
+
+
+Iteration 84: 95 Fock evaluations energy -1043.4647405004 change  0.000000e+00 DIIS error vector rms norm 1.002927e-04
+History size 10
+alpha m=-2 occupations: 1
+alpha m=-1 occupations: 1 1 1 1
+alpha m=0 occupations: 1 1 1 1 1 1 1 1 1
+alpha m=1 occupations: 1 1 1
+alpha m=2 occupations: 1
+beta m=-1 occupations: 1 1 1
+beta m=0 occupations: 1 1 1 1 1 1 1 1
+beta m=1 occupations: 1 1 1
+ADIIS+DIIS step
+Evaluated energy -1043.4546481713 (change from lowest 1.009233e-02)
+Density matrix difference 9.596341e-02 between lowest-energy and newest entry
+
+
+Iteration 85: 96 Fock evaluations energy -1043.4647405004 change  0.000000e+00 DIIS error vector rms norm 1.002927e-04
+History size 10
+alpha m=-2 occupations: 1
+alpha m=-1 occupations: 1 1 1 1
+alpha m=0 occupations: 1 1 1 1 1 1 1 1 1
+alpha m=1 occupations: 1 1 1
+alpha m=2 occupations: 1
+beta m=-1 occupations: 1 1 1
+beta m=0 occupations: 1 1 1 1 1 1 1 1
+beta m=1 occupations: 1 1 1
+Switching DIIS -> L-BFGS: 5 consecutive failed DIIS iterations
+L-BFGS step (0 remaining in burst)
+L-BFGS: applying two-loop direction (history size 10).
+L-BFGS: trial sigma 1.000000e-03 t 1.000000e+00, energy -1043.3841901101, change 8.055039e-02
+L-BFGS: cubic Hermite predicts t = 5.609268e-03 (in [0, 1.000000e+00]).
+L-BFGS: trial sigma 1.000000e-03 t 5.609268e-03, energy -1043.4647428471, change -2.346716e-06
+Density matrix difference 9.592356e-02 between lowest-energy and newest entry
+
+
+Iteration 86: 98 Fock evaluations energy -1043.4647428471 change -2.346716e-06 DIIS error vector rms norm 9.645791e-05
+History size 10
+alpha m=-2 occupations: 1
+alpha m=-1 occupations: 1 1 1 1
+alpha m=0 occupations: 1 1 1 1 1 1 1 1 1
+alpha m=1 occupations: 1 1 1
+alpha m=2 occupations: 1
+beta m=-1 occupations: 1 1 1
+beta m=0 occupations: 1 1 1 1 1 1 1 1
+beta m=1 occupations: 1 1 1
+DIIS step
+Evaluated energy -1043.4548970369 (change from lowest 9.845810e-03)
+Density matrix difference 9.595831e-02 between lowest-energy and newest entry
+
+
+Iteration 87: 99 Fock evaluations energy -1043.4647428471 change  0.000000e+00 DIIS error vector rms norm 9.645791e-05
+History size 10
+alpha m=-2 occupations: 1
+alpha m=-1 occupations: 1 1 1 1
+alpha m=0 occupations: 1 1 1 1 1 1 1 1 1
+alpha m=1 occupations: 1 1 1
+alpha m=2 occupations: 1
+beta m=-1 occupations: 1 1 1
+beta m=0 occupations: 1 1 1 1 1 1 1 1
+beta m=1 occupations: 1 1 1
+DIIS step
+Evaluated energy -1043.4548981779 (change from lowest 9.844669e-03)
+Density matrix difference 9.595989e-02 between lowest-energy and newest entry
+
+
+Iteration 88: 100 Fock evaluations energy -1043.4647428471 change  0.000000e+00 DIIS error vector rms norm 9.645791e-05
+History size 10
+alpha m=-2 occupations: 1
+alpha m=-1 occupations: 1 1 1 1
+alpha m=0 occupations: 1 1 1 1 1 1 1 1 1
+alpha m=1 occupations: 1 1 1
+alpha m=2 occupations: 1
+beta m=-1 occupations: 1 1 1
+beta m=0 occupations: 1 1 1 1 1 1 1 1
+beta m=1 occupations: 1 1 1
+DIIS step
+Evaluated energy -1043.4549033560 (change from lowest 9.839491e-03)
+Density matrix difference 9.596358e-02 between lowest-energy and newest entry
+
+
+Iteration 89: 101 Fock evaluations energy -1043.4647428471 change  0.000000e+00 DIIS error vector rms norm 9.645791e-05
+History size 10
+alpha m=-2 occupations: 1
+alpha m=-1 occupations: 1 1 1 1
+alpha m=0 occupations: 1 1 1 1 1 1 1 1 1
+alpha m=1 occupations: 1 1 1
+alpha m=2 occupations: 1
+beta m=-1 occupations: 1 1 1
+beta m=0 occupations: 1 1 1 1 1 1 1 1
+beta m=1 occupations: 1 1 1
+DIIS step
+Evaluated energy -1043.4549059163 (change from lowest 9.836931e-03)
+Density matrix difference 9.596666e-02 between lowest-energy and newest entry
+
+
+Iteration 90: 102 Fock evaluations energy -1043.4647428471 change  0.000000e+00 DIIS error vector rms norm 9.645791e-05
+History size 10
+alpha m=-2 occupations: 1
+alpha m=-1 occupations: 1 1 1 1
+alpha m=0 occupations: 1 1 1 1 1 1 1 1 1
+alpha m=1 occupations: 1 1 1
+alpha m=2 occupations: 1
+beta m=-1 occupations: 1 1 1
+beta m=0 occupations: 1 1 1 1 1 1 1 1
+beta m=1 occupations: 1 1 1
+DIIS step
+Evaluated energy -1043.4549157639 (change from lowest 9.827083e-03)
+Density matrix difference 9.596999e-02 between lowest-energy and newest entry
+
+
+Iteration 91: 103 Fock evaluations energy -1043.4647428471 change  0.000000e+00 DIIS error vector rms norm 9.645791e-05
+History size 10
+alpha m=-2 occupations: 1
+alpha m=-1 occupations: 1 1 1 1
+alpha m=0 occupations: 1 1 1 1 1 1 1 1 1
+alpha m=1 occupations: 1 1 1
+alpha m=2 occupations: 1
+beta m=-1 occupations: 1 1 1
+beta m=0 occupations: 1 1 1 1 1 1 1 1
+beta m=1 occupations: 1 1 1
+Switching DIIS -> L-BFGS: 5 consecutive failed DIIS iterations
+L-BFGS step (0 remaining in burst)
+L-BFGS: applying two-loop direction (history size 10).
+L-BFGS: trial sigma 1.000000e-03 t 1.000000e+00, energy -1043.4474543433, change 1.728850e-02
+L-BFGS: cubic Hermite predicts t = 9.400422e-03 (in [0, 1.000000e+00]).
+L-BFGS: trial sigma 1.000000e-03 t 9.400422e-03, energy -1043.4647441434, change -1.296232e-06
+Density matrix difference 9.598632e-02 between lowest-energy and newest entry
+
+
+Iteration 92: 105 Fock evaluations energy -1043.4647441434 change -1.296232e-06 DIIS error vector rms norm 9.618727e-05
+History size 10
+alpha m=-2 occupations: 1
+alpha m=-1 occupations: 1 1 1 1
+alpha m=0 occupations: 1 1 1 1 1 1 1 1 1
+alpha m=1 occupations: 1 1 1
+alpha m=2 occupations: 1
+beta m=-1 occupations: 1 1 1
+beta m=0 occupations: 1 1 1 1 1 1 1 1
+beta m=1 occupations: 1 1 1
+DIIS step
+Evaluated energy -1043.4547609401 (change from lowest 9.983203e-03)
+Density matrix difference 9.588755e-02 between lowest-energy and newest entry
+
+
+Iteration 93: 106 Fock evaluations energy -1043.4647441434 change  0.000000e+00 DIIS error vector rms norm 9.618727e-05
+History size 10
+alpha m=-2 occupations: 1
+alpha m=-1 occupations: 1 1 1 1
+alpha m=0 occupations: 1 1 1 1 1 1 1 1 1
+alpha m=1 occupations: 1 1 1
+alpha m=2 occupations: 1
+beta m=-1 occupations: 1 1 1
+beta m=0 occupations: 1 1 1 1 1 1 1 1
+beta m=1 occupations: 1 1 1
+DIIS step
+Evaluated energy -1043.4547566745 (change from lowest 9.987469e-03)
+Density matrix difference 9.588649e-02 between lowest-energy and newest entry
+
+
+Iteration 94: 107 Fock evaluations energy -1043.4647441434 change  0.000000e+00 DIIS error vector rms norm 9.618727e-05
+History size 10
+alpha m=-2 occupations: 1
+alpha m=-1 occupations: 1 1 1 1
+alpha m=0 occupations: 1 1 1 1 1 1 1 1 1
+alpha m=1 occupations: 1 1 1
+alpha m=2 occupations: 1
+beta m=-1 occupations: 1 1 1
+beta m=0 occupations: 1 1 1 1 1 1 1 1
+beta m=1 occupations: 1 1 1
+DIIS step
+Evaluated energy -1043.4547499841 (change from lowest 9.994159e-03)
+Density matrix difference 9.588464e-02 between lowest-energy and newest entry
+
+
+Iteration 95: 108 Fock evaluations energy -1043.4647441434 change  0.000000e+00 DIIS error vector rms norm 9.618727e-05
+History size 10
+alpha m=-2 occupations: 1
+alpha m=-1 occupations: 1 1 1 1
+alpha m=0 occupations: 1 1 1 1 1 1 1 1 1
+alpha m=1 occupations: 1 1 1
+alpha m=2 occupations: 1
+beta m=-1 occupations: 1 1 1
+beta m=0 occupations: 1 1 1 1 1 1 1 1
+beta m=1 occupations: 1 1 1
+DIIS step
+Evaluated energy -1043.4547423377 (change from lowest 1.000181e-02)
+Density matrix difference 9.588273e-02 between lowest-energy and newest entry
+
+
+Iteration 96: 109 Fock evaluations energy -1043.4647441434 change  0.000000e+00 DIIS error vector rms norm 9.618727e-05
+History size 10
+alpha m=-2 occupations: 1
+alpha m=-1 occupations: 1 1 1 1
+alpha m=0 occupations: 1 1 1 1 1 1 1 1 1
+alpha m=1 occupations: 1 1 1
+alpha m=2 occupations: 1
+beta m=-1 occupations: 1 1 1
+beta m=0 occupations: 1 1 1 1 1 1 1 1
+beta m=1 occupations: 1 1 1
+DIIS step
+Evaluated energy -1043.4546438922 (change from lowest 1.010025e-02)
+Density matrix difference 9.583583e-02 between lowest-energy and newest entry
+
+
+Iteration 97: 110 Fock evaluations energy -1043.4647441434 change  0.000000e+00 DIIS error vector rms norm 9.618727e-05
+History size 10
+alpha m=-2 occupations: 1
+alpha m=-1 occupations: 1 1 1 1
+alpha m=0 occupations: 1 1 1 1 1 1 1 1 1
+alpha m=1 occupations: 1 1 1
+alpha m=2 occupations: 1
+beta m=-1 occupations: 1 1 1
+beta m=0 occupations: 1 1 1 1 1 1 1 1
+beta m=1 occupations: 1 1 1
+Switching DIIS -> L-BFGS: 5 consecutive failed DIIS iterations
+L-BFGS step (0 remaining in burst)
+L-BFGS: curvature condition violated (y.s = -2.050521e-04), pair dropped.
+L-BFGS: applying two-loop direction (history size 10).
+L-BFGS: trial sigma 1.000000e-03 t 1.000000e+00, energy -1043.3416838263, change 1.230603e-01
+L-BFGS: cubic Hermite predicts t = 7.526704e-03 (in [0, 1.000000e+00]).
+L-BFGS: trial sigma 1.000000e-03 t 7.526704e-03, energy -1043.4647494497, change -5.306322e-06
+Density matrix difference 9.567102e-02 between lowest-energy and newest entry
+
+
+Iteration 98: 112 Fock evaluations energy -1043.4647494497 change -5.306322e-06 DIIS error vector rms norm 9.474290e-05
+History size 10
+alpha m=-2 occupations: 1
+alpha m=-1 occupations: 1 1 1 1
+alpha m=0 occupations: 1 1 1 1 1 1 1 1 1
+alpha m=1 occupations: 1 1 1
+alpha m=2 occupations: 1
+beta m=-1 occupations: 1 1 1
+beta m=0 occupations: 1 1 1 1 1 1 1 1
+beta m=1 occupations: 1 1 1
+DIIS step
+Evaluated energy -1043.4544658851 (change from lowest 1.028356e-02)
+Density matrix difference 9.560271e-02 between lowest-energy and newest entry
+
+
+Iteration 99: 113 Fock evaluations energy -1043.4647494497 change  0.000000e+00 DIIS error vector rms norm 9.474290e-05
+History size 10
+alpha m=-2 occupations: 1
+alpha m=-1 occupations: 1 1 1 1
+alpha m=0 occupations: 1 1 1 1 1 1 1 1 1
+alpha m=1 occupations: 1 1 1
+alpha m=2 occupations: 1
+beta m=-1 occupations: 1 1 1
+beta m=0 occupations: 1 1 1 1 1 1 1 1
+beta m=1 occupations: 1 1 1
+DIIS step
+Evaluated energy -1043.4544718969 (change from lowest 1.027755e-02)
+Density matrix difference 9.559920e-02 between lowest-energy and newest entry
+
+
+Iteration 100: 114 Fock evaluations energy -1043.4647494497 change  0.000000e+00 DIIS error vector rms norm 9.474290e-05
+History size 10
+alpha m=-2 occupations: 1
+alpha m=-1 occupations: 1 1 1 1
+alpha m=0 occupations: 1 1 1 1 1 1 1 1 1
+alpha m=1 occupations: 1 1 1
+alpha m=2 occupations: 1
+beta m=-1 occupations: 1 1 1
+beta m=0 occupations: 1 1 1 1 1 1 1 1
+beta m=1 occupations: 1 1 1
+DIIS step
+Evaluated energy -1043.4544686174 (change from lowest 1.028083e-02)
+Density matrix difference 9.560135e-02 between lowest-energy and newest entry
+
+First-order SCF energy -1043.4647494497
+
+Trust-region optimization with OpenTrustRegion
+ -------------------------------------------------------------------------------------------------------------
+  Iteration |     Objective function     | Gradient RMS | Level shift |   Micro    | Trust radius | Step size
+            |                            |              |             | iterations |              |
+ -------------------------------------------------------------------------------------------------------------
+        0   |    -1.04346474944968E+03   |   4.00E-04   |      -      |        -   |        -     |      -
+        1   |    -1.04346477671228E+03   |   2.92E-06   |  -0.00E+00  |         9  |    4.80E-01  |  1.07E-02
+        2   |    -1.04346477671365E+03   |   1.80E-10   |  -0.00E+00  |        10  |    5.76E-01  |  9.03E-05
+ -------------------------------------------------------------------------------------------------------------
+ Total number of Hessian linear transformations: 54
+ Total number of orbital updates: 3
+
+Canonical orbital energies (occupations) of the occupied blocks, up to the lowest empty orbital
+alpha m=-2: 1.000000 electrons
+    -0.179848 (1.000000)     0.051529 (0.000000)
+alpha m=-1: 4.000000 electrons
+   -18.360415 (1.000000)    -1.575831 (1.000000)    -0.201175 (1.000000)    -0.180207 (1.000000)
+    -0.065918 (0.000000)
+alpha m=0: 9.000000 electrons
+  -195.656801 (1.000000)   -24.100867 (1.000000)   -21.786174 (1.000000)   -18.367191 (1.000000)
+    -2.504783 (1.000000)    -1.591764 (1.000000)    -0.877288 (1.000000)    -0.219143 (1.000000)
+    -0.193903 (1.000000)    -0.170588 (0.000000)
+alpha m=1: 3.000000 electrons
+   -18.360415 (1.000000)    -1.575831 (1.000000)    -0.201175 (1.000000)    -0.180207 (0.000000)
+alpha m=2: 1.000000 electrons
+    -0.179848 (1.000000)     0.051529 (0.000000)
+beta m=-1: 3.000000 electrons
+   -18.327413 (1.000000)    -1.451329 (1.000000)    -0.210276 (1.000000)    -0.082872 (0.000000)
+beta m=0: 8.000000 electrons
+  -195.656453 (1.000000)   -24.108273 (1.000000)   -21.746063 (1.000000)   -18.341040 (1.000000)
+    -2.386117 (1.000000)    -1.485854 (1.000000)    -0.894519 (1.000000)    -0.236168 (1.000000)
+    -0.110704 (0.000000)
+beta m=1: 3.000000 electrons
+   -18.327413 (1.000000)    -1.451329 (1.000000)    -0.210276 (1.000000)    -0.082872 (0.000000)
+<S^2> = 6.154944
+Term symbol 5Pi (M_L = -1; spin contaminated, <S^2> exceeds Sz(Sz+1) by 0.154944)
+
+SCF converged. Total energy is -1043.4647767136
+
+Running program took 1 min 18.97 s.

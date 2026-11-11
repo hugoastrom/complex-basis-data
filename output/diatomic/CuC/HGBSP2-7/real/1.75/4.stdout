@@ -1,0 +1,586 @@
+ERKALE - HF/DFT from Hel, OpenMP version, running on 8 cores.
+(c) Susi Lehtola, 2010-2016.
+
+This program is free software; you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation; either version 2 of the License, or
+(at your option) any later version.
+
+At svn revision 2281.
+
+Running on host silver.
+
+Current time is Wed 30 Sep 2026 12:35:53.
+
+Current Settings used by ERKALE:
+     AtomGuess      	                Auto	Method used for atomic guess (Auto for same as method)
+     Basis          	            HGBSP2-7	Basis set used in calculation
+     BasisCutoff    	           1.000e-08	Cutoff for dropping out small primitives from contraction
+     BasisOrth      	                Auto	Method of orthonormalization of basis set
+     BasisRotate    	               false	Rotate basis set to remove redundant functions?
+     Charge         	                   0	Total charge of system
+     CholDepThresh  	           1.000e-07	Partial Cholesky decomposition threshold
+     CholeskyFile   	        cholesky.chk	Filename for the DF/CD integral cache (used when CholeskyMode != 0). Plain and range-separated entries coexist in the same file under distinct keys.
+     CholeskyMode   	                   0	Save/load the DF/CD integral cache? 0 no, 1 save after fill, -1 load before fill (falls back to fill on mismatch). Useful for repeated runs that share orbital + auxiliary basis. Ignored when Direct=true.
+     CholeskyShThr  	           1.000e-02	Cholesky cache threshold
+     CholeskyThr    	           1.000e-07	Cholesky decomposition threshold
+     ComplexBasis   	               false	Use complex basis?
+     Confinement    	         0.0 0.0 0.0	Confinement potential V(r) = V_i x_i^2
+     ConvThr        	           1.000e-06	Orbital gradient convergence threshold
+     DFTBasisThr    	           1.000e-10	Threshold for screening basis functions on grid
+     DFTCpars       	                    	Override parameters of correlation functional (expert)
+     DFTDelta       	           1.000e+02	Switch to final DFT grid has converged within factor X
+     DFTDensityThr  	           1.000e-10	Threshold for screening density on grid
+     DFTFinalTol    	           1.000e-05	Tolerance of final DFT grid
+     DFTGrid        	             75 -302	DFT integration grid to use: nrad lmax or Auto for adaptive
+     DFTInitialTol  	           1.000e-04	Tolerance of initial DFT grid
+     DFTLobatto     	               false	Use Lobatto quadrature instead of Lebedev quadrature?
+     DFTQuadThresh  	           2.220e-16	Threshold for pruning points with small quadrature weight
+     DFTXpars       	                    	Override parameters of exchange functional (expert)
+     DIISComb       	               false	Combine alpha and beta errors in unrestricted calcs?
+     DIISEps        	           1.000e-01	Start mixing in DIIS when error is
+     DIISOrder      	                  10	How many DIIS iterations to keep in memory?
+     DIISThr        	           1.000e-02	DIIS error threshold for DIIS updates
+     DecFock        	               false	Use decontracted basis to calculate Fock matrix (direct HF)
+     Decontract     	                    	Indices of atoms to decontract basis set for
+     Direct         	               false	Calculate two-electron integrals (or density fitting) on-the-fly?
+     EField         	         0.0 0.0 0.0	Electric field
+     ErrorNorm      	                 rms	Error norm to use in the SCF code
+     FittingBasis   	def2-universal-jkfit	Basis to use for density fitting / RI: a basis-set name, Auto (CD-derived auto-aux, Lehtola JCTC 17, 6886 (2021); uncontracted, lmax-pruned per FittingLmaxInc) or AutoABS (Eichkorn-style automatic aux, J-only)
+     FittingCholeskyThreshold	           1.000e-08	Linear dependence threshold for pivoted Cholesky of Coulomb integrals in density fitting
+     FittingLmaxInc 	                   1	Angular-momentum pruning increment for the CD-derived auto-aux: keep l <= max(2*l_occ, l_obs+l_occ+FittingLmaxInc) (Lehtola JCTC 19, 6242 (2023)); negative keeps all shells
+     FittingThreshold	           1.000e-07	Linear dependence threshold for Coulomb integrals in density fitting
+     Guess          	                 sap	Used guess: SAD (default), SADNO, core, GWH, SAP, or SAPfit
+     HarmonicConfinement	           0.000e+00	Harmonic confinement strength k (potential 1/2 k r^2), 0 = off
+     InputBohr      	               false	Use atomic units as input units instead of angstrom?
+     IntegralThresh 	           1.000e-10	Integral screening threshold
+     JKMethod       	            Cholesky	Coulomb/exchange build method: 4index (exact ERIs, in-core or Direct), RI (density fitting with a Gaussian auxiliary basis -- set FittingBasis), Cholesky (two-step pivoted Cholesky decomposition; Folkestad/Kjonstad/Koch JCP 150, 194112 (2019); exact at threshold) or CDFit (density fitting on a per-atom CD-derived auxiliary basis; Lehtola JCTC 17, 6886 (2021); exact only as the orbital basis becomes complete).
+     Kgwh           	           1.750e+00	Scaling constant for GWH
+     LinDepThresh   	           1.000e-05	Basis set linear dependency threshold
+     LinearB        	           0.000e+00	Magnetic field along bond axis
+     LinearE        	           0.000e+00	Electric field along bond (z) axis
+     LinearFreeze   	               false	If using linear symmetry, freeze symmetry to input guess
+     LinearOccupationFile	../../../../CuC_4.occs	File to read linear occupations from
+     LinearOccupations	                  -1	Read in occupations for linear molecule calculations?
+     LinearSymmetry 	                true	Do special calculation on linear molecule along z axis
+     LoadChk        	       ../1.70/4.chk	Checkpoint file to load from
+     Logfile        	          erkale.log	File to print out full information, stdout for screen
+     MaxIter        	                 100	Maximum number of iterations in SCF cycle
+     Method         	 gga_x_pbe-gga_c_pbe	Method used in calculation (HF or a DFT functional)
+     Multiplicity   	                   4	Spin multiplicity
+     NLGrid         	             50 -194	Integration grid to use for nonlocal correlation: nrad lmax
+     OccRIK         	               false	Use the occ-RI-K algorithm (Manzer et al, JCP 143, 024113 (2015)) for density-fitted/Cholesky exchange? Gives the exact (RI) SCF energy and density but only approximate virtual orbital energies. Ignored for the four-index method.
+     Occupancies    	                    	Orbital occupancies
+     OptLM          	               false	If spherical harmonics used, use cartesian s and p functions?
+     PZ             	               false	Perform Perdew-Zunger self-interaction correction?
+     PZEthr         	           1.000e-10	Threshold for energy convergence
+     PZIthr         	           1.000e-02	Threshold for initialization convergence (not too small!)
+     PZNRthr        	           0.000e+00	Threshold for use of NR method in OO optimization
+     PZOOthr        	           1.000e-04	Gradient threshold for OO optimization
+     PZOVthr        	           1.000e-05	Gradient threshold for OV optimization
+     PZimag         	                Auto	Imaginary degrees of freedom in PZ?
+     PZiter         	                  20	Max number of iterations in self-consistency iteration
+     PZloc          	                Auto	Initial localization before SIC calculation?
+     PZlocmet       	                  FB	Initial localization method (recommend FB or IAO)
+     PZmode         	                  XC	Apply PZ to the operators (in addition to J): X C D
+     PZoo           	                true	Optimize OO block?
+     PZov           	                true	Optimize OV block?
+     PZprec         	                   1	Precondition OV block? 0: no, 1: unified, 2: orbital
+     PZrand         	                true	Apply random rotation in PZ initialization? (Should be true)
+     PZscale        	            Constant	Scaling for PZ: Constant, Density or Kinetic
+     PZscaleExp     	           1.000e+00	Exponent in the dynamic scaling equation
+     PZseed         	                   0	Seed number for randomized matrices?
+     PZstab         	                   0	Stability analysis for PZ-SIC? 1 or -1 for OO, 2 or -2 for OO+OV
+     PZstabThr      	           1.000e-03	Instability threshold (interpreted as -thr)
+     PZw            	           1.000e+00	Weight for Perdew-Zunger self-interaction correction
+     Restricted     	               false	Spin restricted?
+     SAPBasis       	    helfem_large.gbs	Tabulated atomic effective potential "basis set"
+     SAPGrid        	                    	SAP integration grid to use: nrad lmax or leave empty
+     SCFMethods     	        DIIS + LBFGS	SCF convergence methods to use
+     SaveChk        	               4.chk	Checkpoint file to save to
+     ScreeningThresh	           1.000e-10	Density-weighted Fock-contribution screening threshold
+     Shift          	           0.000e+00	Level shift to use in Hartree
+     StabilityAnalysis	               false	Check the stability of the solution within its symmetry, following instabilities if TrustRegion is used?
+     System         	             CuC.xyz	System as an xyz file
+     TRRHminS       	           9.750e-01	Trust-Region Roothaan-Hall minimal occupied orbital overlap
+     TrustRegion    	               false	Finish the SCF with second-order trust-region optimization (OpenTrustRegion)?
+     UseADIIS       	                true	Use ADIIS for Fock matrix interpolation?
+     UseBroyden     	               false	Use Broyden mixing of Fock matrices?
+     UseDIIS        	                true	Use Pulay's Direct Inversion in the Iterative Subspace?
+     UseLM          	                true	Use a spherical harmonics basis set by default?
+     UseTRRH        	               false	Use Trust-Region Roothaan-Hall?
+     VV10           	                Auto	Use VV10 non-local correlation?
+     VV10Pars       	                    	VV10 parameters: b C
+     Verbose        	                true	Verbose calculation?
+     Verbosity      	                   5	Verboseness level
+
+Basis set HGBSP2-7 found in file HGBSP2-7.gbs in /home/lehtola/programs/erkale/basis/.
+Basis set helfem_large.gbs found in file helfem_large.gbs in /home/lehtola/programs/erkale/basis/.
+Computing repulsion integrals (two-step CD).
+Two-step CD: screening reduced dofs by factor 2.11.
+Two-step CD selected 4040 pivot orbital pairs after pivoting (2 min 2.69 s).
+Pivot selection time use: integrals 8.1 %, linear algebra 91.9 %.
+Two-step CD: pivot metric orthogonalisation reduced 4040 -> 4028 functions (6.21 s).
+Two-step CD finished in 3 min 6.62 s.
+Metric build / orthogonalisation time use: integrals 3.4 %, linear algebra 96.6 %.
+11067 shell pairs out of 12561 are significant.
+Constructing static nrad=75 lmax=29 XC grid.
+Composition of XC grid:
+    atom Npoints     Nfuncs
+    1 Cu   21050   10828329
+    2 C    21050    9885221
+11067 shell pairs and 2 nuclei
+SAP potential formed in 0.129 s.
+Smallest eigenvalue of overlap matrix is 5.33e-03, reciprocal condition number is 1.55e-03.
+Using symmetric orthogonalization.
+Smallest eigenvalue of overlap matrix is 1.45e-04, reciprocal condition number is 2.16e-05.
+Using symmetric orthogonalization.
+Smallest eigenvalue of overlap matrix is 2.58e-06, reciprocal condition number is 3.64e-07.
+Using canonical orthogonalization.
+Smallest eigenvalue of overlap matrix is 6.63e-07, reciprocal condition number is 9.16e-08.
+Using canonical orthogonalization.
+Smallest eigenvalue of overlap matrix is 3.87e-07, reciprocal condition number is 5.04e-08.
+Using canonical orthogonalization.
+Smallest eigenvalue of overlap matrix is 6.63e-07, reciprocal condition number is 9.16e-08.
+Using canonical orthogonalization.
+Smallest eigenvalue of overlap matrix is 2.58e-06, reciprocal condition number is 3.64e-07.
+Using canonical orthogonalization.
+Smallest eigenvalue of overlap matrix is 1.45e-04, reciprocal condition number is 2.16e-05.
+Using symmetric orthogonalization.
+Smallest eigenvalue of overlap matrix is 5.33e-03, reciprocal condition number is 1.55e-03.
+Using symmetric orthogonalization.
+Nela = 18 Nelb = 15
+
+
+
+Solving SCF
+Evaluated energy  114640.5427824440 (change from lowest 1.146405e+05)
+
+
+Iteration 1: 1 Fock evaluations energy  114640.5427824440 change  1.146405e+05 DIIS error vector rms norm 2.866155e+03
+History size 1
+alpha m=-2 occupations: 1
+alpha m=-1 occupations: 1 1 1
+alpha m=0 occupations: 1 1 1 1 1 1 1 1 1 1
+alpha m=1 occupations: 1 1 1
+alpha m=2 occupations: 1
+beta m=-2 occupations: 1
+beta m=-1 occupations: 1 1 1
+beta m=0 occupations: 1 1 1 1 1 1 1
+beta m=1 occupations: 1 1 1
+beta m=2 occupations: 1
+Switching DIIS -> L-BFGS: DIIS max error 1.859811e+05 exceeds threshold 1.000000e+00
+L-BFGS step (0 remaining in burst)
+L-BFGS: trial sigma 1.000000e-03 t 1.834693e-07, energy  73504.6942933882, change -4.113585e+04
+Density matrix difference 1.697582e-02 between lowest-energy and newest entry
+
+
+Iteration 2: 2 Fock evaluations energy  73504.6942933882 change -4.113585e+04 DIIS error vector rms norm 1.735638e+03
+History size 2
+alpha m=-2 occupations: 1
+alpha m=-1 occupations: 1 1 1
+alpha m=0 occupations: 1 1 1 1 1 1 1 1 1 1
+alpha m=1 occupations: 1 1 1
+alpha m=2 occupations: 1
+beta m=-2 occupations: 1
+beta m=-1 occupations: 1 1 1
+beta m=0 occupations: 1 1 1 1 1 1 1
+beta m=1 occupations: 1 1 1
+beta m=2 occupations: 1
+Switching DIIS -> L-BFGS: DIIS max error 2.759195e+05 exceeds threshold 1.000000e+00
+L-BFGS step (0 remaining in burst)
+L-BFGS: applying two-loop direction (history size 1).
+L-BFGS: trial sigma 1.000000e-03 t 2.397549e-09, energy  65684.4718202274, change -7.820222e+03
+Density matrix difference 1.622014e-02 between lowest-energy and newest entry
+
+
+Iteration 3: 3 Fock evaluations energy  65684.4718202274 change -7.820222e+03 DIIS error vector rms norm 1.619253e+03
+History size 3
+alpha m=-2 occupations: 1
+alpha m=-1 occupations: 1 1 1
+alpha m=0 occupations: 1 1 1 1 1 1 1 1 1 1
+alpha m=1 occupations: 1 1 1
+alpha m=2 occupations: 1
+beta m=-2 occupations: 1
+beta m=-1 occupations: 1 1 1
+beta m=0 occupations: 1 1 1 1 1 1 1
+beta m=1 occupations: 1 1 1
+beta m=2 occupations: 1
+Switching DIIS -> L-BFGS: DIIS max error 2.775417e+05 exceeds threshold 1.000000e+00
+L-BFGS step (0 remaining in burst)
+L-BFGS: applying two-loop direction (history size 2).
+L-BFGS: trial sigma 1.000000e-03 t 1.194739e-09, energy  67762.8912056059, change 2.078419e+03
+L-BFGS: cubic Hermite predicts t = 4.194794e-10 (in [0, 1.194739e-09]).
+L-BFGS: trial sigma 1.000000e-03 t 4.194794e-10, energy  62755.8081377586, change -2.928664e+03
+Density matrix difference 7.453297e-03 between lowest-energy and newest entry
+
+
+Iteration 4: 5 Fock evaluations energy  62755.8081377586 change -2.928664e+03 DIIS error vector rms norm 1.608481e+03
+History size 4
+alpha m=-2 occupations: 1
+alpha m=-1 occupations: 1 1 1
+alpha m=0 occupations: 1 1 1 1 1 1 1 1 1 1
+alpha m=1 occupations: 1 1 1
+alpha m=2 occupations: 1
+beta m=-2 occupations: 1
+beta m=-1 occupations: 1 1 1
+beta m=0 occupations: 1 1 1 1 1 1 1
+beta m=1 occupations: 1 1 1
+beta m=2 occupations: 1
+Switching DIIS -> L-BFGS: DIIS max error 2.775794e+05 exceeds threshold 1.000000e+00
+L-BFGS step (0 remaining in burst)
+L-BFGS: applying two-loop direction (history size 3).
+L-BFGS: trial sigma 1.000000e-03 t 1.999894e-09, energy  69809.8656025692, change 7.054057e+03
+L-BFGS: cubic Hermite predicts t = 1.733146e-10 (in [0, 1.999894e-09]).
+L-BFGS: trial sigma 1.000000e-03 t 1.733146e-10, energy  62473.4489054207, change -2.823592e+02
+Density matrix difference 1.901564e-03 between lowest-energy and newest entry
+
+
+Iteration 5: 7 Fock evaluations energy  62473.4489054207 change -2.823592e+02 DIIS error vector rms norm 1.607700e+03
+History size 5
+alpha m=-2 occupations: 1
+alpha m=-1 occupations: 1 1 1
+alpha m=0 occupations: 1 1 1 1 1 1 1 1 1 1
+alpha m=1 occupations: 1 1 1
+alpha m=2 occupations: 1
+beta m=-2 occupations: 1
+beta m=-1 occupations: 1 1 1
+beta m=0 occupations: 1 1 1 1 1 1 1
+beta m=1 occupations: 1 1 1
+beta m=2 occupations: 1
+Switching DIIS -> L-BFGS: DIIS max error 2.774881e+05 exceeds threshold 1.000000e+00
+L-BFGS step (0 remaining in burst)
+L-BFGS: applying two-loop direction (history size 4).
+L-BFGS: trial sigma 1.000000e-03 t 1.837691e-08, energy  62887.8876009765, change 4.144387e+02
+L-BFGS: cubic Hermite predicts t = 2.525311e-09 (in [0, 1.837691e-08]).
+L-BFGS: trial sigma 1.000000e-03 t 2.525311e-09, energy  62123.5400861472, change -3.499088e+02
+Density matrix difference 3.044423e-03 between lowest-energy and newest entry
+
+
+Iteration 6: 9 Fock evaluations energy  62123.5400861472 change -3.499088e+02 DIIS error vector rms norm 1.606070e+03
+History size 6
+alpha m=-2 occupations: 1
+alpha m=-1 occupations: 1 1 1
+alpha m=0 occupations: 1 1 1 1 1 1 1 1 1 1
+alpha m=1 occupations: 1 1 1
+alpha m=2 occupations: 1
+beta m=-2 occupations: 1
+beta m=-1 occupations: 1 1 1
+beta m=0 occupations: 1 1 1 1 1 1 1
+beta m=1 occupations: 1 1 1
+beta m=2 occupations: 1
+Switching DIIS -> L-BFGS: DIIS max error 2.772449e+05 exceeds threshold 1.000000e+00
+L-BFGS step (0 remaining in burst)
+L-BFGS: applying two-loop direction (history size 5).
+L-BFGS: trial sigma 1.000000e-03 t 3.191985e-09, energy  70563.8582439436, change 8.440318e+03
+L-BFGS: cubic Hermite predicts t = 1.046847e-10 (in [0, 3.191985e-09]).
+L-BFGS: trial sigma 1.000000e-03 t 1.046847e-10, energy  62081.8760340536, change -4.166405e+01
+Density matrix difference 7.194360e-04 between lowest-energy and newest entry
+
+
+Iteration 7: 11 Fock evaluations energy  62081.8760340536 change -4.166405e+01 DIIS error vector rms norm 1.605928e+03
+History size 7
+alpha m=-2 occupations: 1
+alpha m=-1 occupations: 1 1 1
+alpha m=0 occupations: 1 1 1 1 1 1 1 1 1 1
+alpha m=1 occupations: 1 1 1
+alpha m=2 occupations: 1
+beta m=-2 occupations: 1
+beta m=-1 occupations: 1 1 1
+beta m=0 occupations: 1 1 1 1 1 1 1
+beta m=1 occupations: 1 1 1
+beta m=2 occupations: 1
+Switching DIIS -> L-BFGS: DIIS max error 2.775051e+05 exceeds threshold 1.000000e+00
+L-BFGS step (0 remaining in burst)
+L-BFGS: applying two-loop direction (history size 6).
+L-BFGS: trial sigma 1.000000e-03 t 4.562242e-10, energy  70189.9950363160, change 8.108119e+03
+L-BFGS: cubic Hermite predicts t = 1.303326e-11 (in [0, 4.562242e-10]).
+L-BFGS: trial sigma 1.000000e-03 t 1.303326e-11, energy  62050.8056253868, change -3.107041e+01
+Density matrix difference 6.271326e-04 between lowest-energy and newest entry
+
+
+Iteration 8: 13 Fock evaluations energy  62050.8056253868 change -3.107041e+01 DIIS error vector rms norm 1.605806e+03
+History size 8
+alpha m=-2 occupations: 1
+alpha m=-1 occupations: 1 1 1
+alpha m=0 occupations: 1 1 1 1 1 1 1 1 1 1
+alpha m=1 occupations: 1 1 1
+alpha m=2 occupations: 1
+beta m=-2 occupations: 1
+beta m=-1 occupations: 1 1 1
+beta m=0 occupations: 1 1 1 1 1 1 1
+beta m=1 occupations: 1 1 1
+beta m=2 occupations: 1
+Switching DIIS -> L-BFGS: DIIS max error 2.774517e+05 exceeds threshold 1.000000e+00
+L-BFGS step (0 remaining in burst)
+L-BFGS: curvature condition violated (y.s = -4.981799e+12), pair dropped.
+L-BFGS: applying two-loop direction (history size 6).
+L-BFGS: trial sigma 1.000000e-03 t 1.872878e-10, energy  67981.7181145801, change 5.930912e+03
+L-BFGS: cubic Hermite predicts t = 1.351496e-11 (in [0, 1.872878e-10]).
+L-BFGS: trial sigma 1.000000e-03 t 1.351496e-11, energy  61874.3629505424, change -1.764427e+02
+Density matrix difference 1.582624e-03 between lowest-energy and newest entry
+
+
+Iteration 9: 15 Fock evaluations energy  61874.3629505424 change -1.764427e+02 DIIS error vector rms norm 1.605306e+03
+History size 9
+alpha m=-2 occupations: 1
+alpha m=-1 occupations: 1 1 1
+alpha m=0 occupations: 1 1 1 1 1 1 1 1 1 1
+alpha m=1 occupations: 1 1 1
+alpha m=2 occupations: 1
+beta m=-2 occupations: 1
+beta m=-1 occupations: 1 1 1
+beta m=0 occupations: 1 1 1 1 1 1 1
+beta m=1 occupations: 1 1 1
+beta m=2 occupations: 1
+Switching DIIS -> L-BFGS: DIIS max error 2.773737e+05 exceeds threshold 1.000000e+00
+L-BFGS step (0 remaining in burst)
+L-BFGS: applying two-loop direction (history size 7).
+L-BFGS: trial sigma 1.000000e-03 t 4.166709e-10, energy  67432.8859519527, change 5.558523e+03
+L-BFGS: cubic Hermite predicts t = 2.514468e-11 (in [0, 4.166709e-10]).
+L-BFGS: trial sigma 1.000000e-03 t 2.514468e-11, energy  61755.6835869648, change -1.186794e+02
+Density matrix difference 1.324436e-03 between lowest-energy and newest entry
+
+
+Iteration 10: 17 Fock evaluations energy  61755.6835869648 change -1.186794e+02 DIIS error vector rms norm 1.604949e+03
+History size 10
+alpha m=-2 occupations: 1
+alpha m=-1 occupations: 1 1 1
+alpha m=0 occupations: 1 1 1 1 1 1 1 1 1 1
+alpha m=1 occupations: 1 1 1
+alpha m=2 occupations: 1
+beta m=-2 occupations: 1
+beta m=-1 occupations: 1 1 1
+beta m=0 occupations: 1 1 1 1 1 1 1
+beta m=1 occupations: 1 1 1
+beta m=2 occupations: 1
+Switching DIIS -> L-BFGS: DIIS max error 2.771670e+05 exceeds threshold 1.000000e+00
+L-BFGS step (0 remaining in burst)
+L-BFGS: applying two-loop direction (history size 8).
+L-BFGS: trial sigma 1.000000e-03 t 3.655521e-10, energy  67478.5140406532, change 5.722830e+03
+L-BFGS: cubic Hermite predicts t = 1.206312e-11 (in [0, 3.655521e-10]).
+L-BFGS: trial sigma 1.000000e-03 t 1.206312e-11, energy  61721.0766777779, change -3.460691e+01
+Density matrix difference 7.239953e-04 between lowest-energy and newest entry
+
+
+Iteration 11: 19 Fock evaluations energy  61721.0766777779 change -3.460691e+01 DIIS error vector rms norm 1.604872e+03
+History size 10
+alpha m=-2 occupations: 1
+alpha m=-1 occupations: 1 1 1
+alpha m=0 occupations: 1 1 1 1 1 1 1 1 1 1
+alpha m=1 occupations: 1 1 1
+alpha m=2 occupations: 1
+beta m=-2 occupations: 1
+beta m=-1 occupations: 1 1 1
+beta m=0 occupations: 1 1 1 1 1 1 1
+beta m=1 occupations: 1 1 1
+beta m=2 occupations: 1
+Switching DIIS -> L-BFGS: DIIS max error 2.769570e+05 exceeds threshold 1.000000e+00
+L-BFGS step (0 remaining in burst)
+L-BFGS: applying two-loop direction (history size 9).
+L-BFGS: trial sigma 1.000000e-03 t 8.893965e-10, energy  66413.6131868002, change 4.692537e+03
+L-BFGS: cubic Hermite predicts t = 2.270603e-11 (in [0, 8.893965e-10]).
+L-BFGS: trial sigma 1.000000e-03 t 2.270603e-11, energy  61702.4875765885, change -1.858910e+01
+Density matrix difference 5.603184e-04 between lowest-energy and newest entry
+
+
+Iteration 12: 21 Fock evaluations energy  61702.4875765885 change -1.858910e+01 DIIS error vector rms norm 1.604840e+03
+History size 10
+alpha m=-2 occupations: 1
+alpha m=-1 occupations: 1 1 1
+alpha m=0 occupations: 1 1 1 1 1 1 1 1 1 1
+alpha m=1 occupations: 1 1 1
+alpha m=2 occupations: 1
+beta m=-2 occupations: 1
+beta m=-1 occupations: 1 1 1
+beta m=0 occupations: 1 1 1 1 1 1 1
+beta m=1 occupations: 1 1 1
+beta m=2 occupations: 1
+Switching DIIS -> L-BFGS: DIIS max error 2.770889e+05 exceeds threshold 1.000000e+00
+L-BFGS step (0 remaining in burst)
+L-BFGS: applying two-loop direction (history size 10).
+L-BFGS: trial sigma 1.000000e-03 t 6.126294e-09, energy  68426.1405157959, change 6.723653e+03
+L-BFGS: cubic Hermite predicts t = 8.380450e-11 (in [0, 6.126294e-09]).
+L-BFGS: trial sigma 1.000000e-03 t 8.380450e-11, energy  61696.1244745051, change -6.363102e+00
+Density matrix difference 3.006614e-04 between lowest-energy and newest entry
+
+
+Iteration 13: 23 Fock evaluations energy  61696.1244745051 change -6.363102e+00 DIIS error vector rms norm 1.604811e+03
+History size 10
+alpha m=-2 occupations: 1
+alpha m=-1 occupations: 1 1 1
+alpha m=0 occupations: 1 1 1 1 1 1 1 1 1 1
+alpha m=1 occupations: 1 1 1
+alpha m=2 occupations: 1
+beta m=-2 occupations: 1
+beta m=-1 occupations: 1 1 1
+beta m=0 occupations: 1 1 1 1 1 1 1
+beta m=1 occupations: 1 1 1
+beta m=2 occupations: 1
+Switching DIIS -> L-BFGS: DIIS max error 2.771447e+05 exceeds threshold 1.000000e+00
+L-BFGS step (0 remaining in burst)
+L-BFGS: curvature condition violated (y.s = -3.922449e+11), pair dropped.
+L-BFGS: applying two-loop direction (history size 10).
+L-BFGS: trial sigma 1.000000e-03 t 2.528535e-10, energy  66461.8521213710, change 4.765728e+03
+L-BFGS: cubic Hermite predicts t = 1.697679e-11 (in [0, 2.528535e-10]).
+L-BFGS: trial sigma 1.000000e-03 t 1.697679e-11, energy  61558.9284799480, change -1.371960e+02
+Density matrix difference 1.472779e-03 between lowest-energy and newest entry
+
+
+Iteration 14: 25 Fock evaluations energy  61558.9284799480 change -1.371960e+02 DIIS error vector rms norm 1.604382e+03
+History size 10
+alpha m=-2 occupations: 1
+alpha m=-1 occupations: 1 1 1
+alpha m=0 occupations: 1 1 1 1 1 1 1 1 1 1
+alpha m=1 occupations: 1 1 1
+alpha m=2 occupations: 1
+beta m=-2 occupations: 1
+beta m=-1 occupations: 1 1 1
+beta m=0 occupations: 1 1 1 1 1 1 1
+beta m=1 occupations: 1 1 1
+beta m=2 occupations: 1
+Switching DIIS -> L-BFGS: DIIS max error 2.770710e+05 exceeds threshold 1.000000e+00
+L-BFGS step (0 remaining in burst)
+L-BFGS: applying two-loop direction (history size 10).
+L-BFGS: trial sigma 1.000000e-03 t 1.029186e-09, energy  66072.4968165618, change 4.513568e+03
+L-BFGS: cubic Hermite predicts t = 1.821335e-11 (in [0, 1.029186e-09]).
+L-BFGS: trial sigma 1.000000e-03 t 1.821335e-11, energy  61550.2816429162, change -8.646837e+00
+Density matrix difference 3.892760e-04 between lowest-energy and newest entry
+
+
+Iteration 15: 27 Fock evaluations energy  61550.2816429162 change -8.646837e+00 DIIS error vector rms norm 1.604351e+03
+History size 10
+alpha m=-2 occupations: 1
+alpha m=-1 occupations: 1 1 1
+alpha m=0 occupations: 1 1 1 1 1 1 1 1 1 1
+alpha m=1 occupations: 1 1 1
+alpha m=2 occupations: 1
+beta m=-2 occupations: 1
+beta m=-1 occupations: 1 1 1
+beta m=0 occupations: 1 1 1 1 1 1 1
+beta m=1 occupations: 1 1 1
+beta m=2 occupations: 1
+Switching DIIS -> L-BFGS: DIIS max error 2.768585e+05 exceeds threshold 1.000000e+00
+L-BFGS step (0 remaining in burst)
+L-BFGS: applying two-loop direction (history size 10).
+L-BFGS: trial sigma 1.000000e-03 t 1.565021e-10, energy  68666.7026761988, change 7.116421e+03
+L-BFGS: cubic Hermite predicts t = 1.814396e-12 (in [0, 1.565021e-10]).
+L-BFGS: trial sigma 1.000000e-03 t 1.814396e-12, energy  61545.5364162144, change -4.745227e+00
+Density matrix difference 2.547591e-04 between lowest-energy and newest entry
+
+
+Iteration 16: 29 Fock evaluations energy  61545.5364162144 change -4.745227e+00 DIIS error vector rms norm 1.604340e+03
+History size 10
+alpha m=-2 occupations: 1
+alpha m=-1 occupations: 1 1 1
+alpha m=0 occupations: 1 1 1 1 1 1 1 1 1 1
+alpha m=1 occupations: 1 1 1
+alpha m=2 occupations: 1
+beta m=-2 occupations: 1
+beta m=-1 occupations: 1 1 1
+beta m=0 occupations: 1 1 1 1 1 1 1
+beta m=1 occupations: 1 1 1
+beta m=2 occupations: 1
+Switching DIIS -> L-BFGS: DIIS max error 2.767394e+05 exceeds threshold 1.000000e+00
+L-BFGS step (0 remaining in burst)
+L-BFGS: applying two-loop direction (history size 10).
+L-BFGS: trial sigma 1.000000e-03 t 3.597901e-10, energy  66065.3374410031, change 4.519801e+03
+L-BFGS: cubic Hermite predicts t = 3.945899e-12 (in [0, 3.597901e-10]).
+L-BFGS: trial sigma 1.000000e-03 t 3.945899e-12, energy  61542.2825291440, change -3.253887e+00
+Density matrix difference 2.410527e-04 between lowest-energy and newest entry
+
+
+Iteration 17: 31 Fock evaluations energy  61542.2825291440 change -3.253887e+00 DIIS error vector rms norm 1.604328e+03
+History size 10
+alpha m=-2 occupations: 1
+alpha m=-1 occupations: 1 1 1
+alpha m=0 occupations: 1 1 1 1 1 1 1 1 1 1
+alpha m=1 occupations: 1 1 1
+alpha m=2 occupations: 1
+beta m=-2 occupations: 1
+beta m=-1 occupations: 1 1 1
+beta m=0 occupations: 1 1 1 1 1 1 1
+beta m=1 occupations: 1 1 1
+beta m=2 occupations: 1
+Switching DIIS -> L-BFGS: DIIS max error 2.767770e+05 exceeds threshold 1.000000e+00
+L-BFGS step (0 remaining in burst)
+L-BFGS: applying two-loop direction (history size 10).
+L-BFGS: trial sigma 1.000000e-03 t 4.996920e-10, energy  64908.8006069030, change 3.366518e+03
+L-BFGS: cubic Hermite predicts t = 1.385217e-11 (in [0, 4.996920e-10]).
+L-BFGS: trial sigma 1.000000e-03 t 1.385217e-11, energy  61523.0375644689, change -1.924496e+01
+Density matrix difference 6.091113e-04 between lowest-energy and newest entry
+
+
+Iteration 18: 33 Fock evaluations energy  61523.0375644689 change -1.924496e+01 DIIS error vector rms norm 1.604260e+03
+History size 10
+alpha m=-2 occupations: 1
+alpha m=-1 occupations: 1 1 1
+alpha m=0 occupations: 1 1 1 1 1 1 1 1 1 1
+alpha m=1 occupations: 1 1 1
+alpha m=2 occupations: 1
+beta m=-2 occupations: 1
+beta m=-1 occupations: 1 1 1
+beta m=0 occupations: 1 1 1 1 1 1 1
+beta m=1 occupations: 1 1 1
+beta m=2 occupations: 1
+Switching DIIS -> L-BFGS: DIIS max error 2.767487e+05 exceeds threshold 1.000000e+00
+L-BFGS step (0 remaining in burst)
+L-BFGS: applying two-loop direction (history size 10).
+L-BFGS: trial sigma 1.000000e-03 t 5.762055e-10, energy  64335.7475012409, change 2.812710e+03
+L-BFGS: cubic Hermite predicts t = 9.035615e-11 (in [0, 5.762055e-10]).
+L-BFGS: trial sigma 1.000000e-03 t 9.035615e-11, energy  60820.9692785051, change -7.020683e+02
+Density matrix difference 3.419307e-03 between lowest-energy and newest entry
+
+
+Iteration 19: 35 Fock evaluations energy  60820.9692785051 change -7.020683e+02 DIIS error vector rms norm 1.602153e+03
+History size 10
+alpha m=-2 occupations: 1
+alpha m=-1 occupations: 1 1 1
+alpha m=0 occupations: 1 1 1 1 1 1 1 1 1 1
+alpha m=1 occupations: 1 1 1
+alpha m=2 occupations: 1
+beta m=-2 occupations: 1
+beta m=-1 occupations: 1 1 1
+beta m=0 occupations: 1 1 1 1 1 1 1
+beta m=1 occupations: 1 1 1
+beta m=2 occupations: 1
+Switching DIIS -> L-BFGS: DIIS max error 2.765188e+05 exceeds threshold 1.000000e+00
+L-BFGS step (0 remaining in burst)
+L-BFGS: applying two-loop direction (history size 10).
+L-BFGS: trial sigma 1.000000e-03 t 1.654308e-09, energy  62881.6842738519, change 2.060715e+03
+L-BFGS: cubic Hermite predicts t = 1.688208e-10 (in [0, 1.654308e-09]).
+L-BFGS: trial sigma 1.000000e-03 t 1.688208e-10, energy  60586.9265546477, change -2.340427e+02
+Density matrix difference 2.237371e-03 between lowest-energy and newest entry
+
+
+Iteration 20: 37 Fock evaluations energy  60586.9265546477 change -2.340427e+02 DIIS error vector rms norm 1.601503e+03
+History size 10
+alpha m=-2 occupations: 1
+alpha m=-1 occupations: 1 1 1
+alpha m=0 occupations: 1 1 1 1 1 1 1 1 1 1
+alpha m=1 occupations: 1 1 1
+alpha m=2 occupations: 1
+beta m=-2 occupations: 1
+beta m=-1 occupations: 1 1 1
+beta m=0 occupations: 1 1 1 1 1 1 1
+beta m=1 occupations: 1 1 1
+beta m=2 occupations: 1
+Switching DIIS -> L-BFGS: DIIS max error 2.771396e+05 exceeds threshold 1.000000e+00
+L-BFGS step (0 remaining in burst)
+L-BFGS: applying two-loop direction (history size 10).
+L-BFGS: trial sigma 1.000000e-03 t 9.488284e-09, energy  58308.8736261842, change -2.278053e+03
+Density matrix difference 1.664470e-02 between lowest-energy and newest entry
+
+
+Iteration 21: 38 Fock evaluations energy  58308.8736261842 change -2.278053e+03 DIIS error vector rms norm 1.517757e+03
+History size 10
+alpha m=-2 occupations: 1
+alpha m=-1 occupations: 1 1 1
+alpha m=0 occupations: 1 1 1 1 1 1 1 1 1 1
+alpha m=1 occupations: 1 1 1
+alpha m=2 occupations: 1
+beta m=-2 occupations: 1
+beta m=-1 occupations: 1 1 1
+beta m=0 occupations: 1 1 1 1 1 1 1
+beta m=1 occupations: 1 1 1
+beta m=2 occupations: 1
