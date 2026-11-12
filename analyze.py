@@ -614,8 +614,7 @@ mapp={
 colors = ['b','tab:orange','g','r','c','tab:pink','y','k','tab:brown']
 violin_colors = ['crimson', 'pink', 'purple', 'cornflowerblue', 'turquoise', 'navy', 'palegreen', 'forestgreen', 'gold', 'darkorange', 'brown', 'rosybrown', 'slategray', 'blue', 'magenta', 'palegoldenrod', 'darkslategray', 'yellowgreen']
 
-#mols = {"CuC": {"atoms": ["Cu", "C"], "M": [2, 4], "rvals": ["{:.2f}".format(r) for r in np.arange(0.499, 2.501, 0.05)]},
-mols = {"VF": {"atoms": ["V", "F"], "M": ["5pi", "5delta", "5sigma", "5phi", "5gamma"], "rvals": ["{:.2f}".format(r) for r in np.arange(1.2, 3.01, 0.05)]}}
+mols = {"CuC": {"atoms": ["Cu", "C"], "M": ["2pi", "2delta", "4sigma", "4pi", "4delta"], "rvals": ["{:.2f}".format(r) for r in np.arange(0.80, 2.81, 0.05)]}, "VF": {"atoms": ["V", "F"], "M": ["5pi", "5delta", "5sigma", "5phi", "5gamma"], "rvals": ["{:.2f}".format(r) for r in np.arange(1.2, 3.01, 0.05)]}}
 bs = ["cc-pVDZ", "cc-pVTZ", "cc-pVQZ"]
 plot_diatomic(mols, bs)
 
